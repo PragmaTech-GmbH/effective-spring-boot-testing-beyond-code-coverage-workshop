@@ -26,25 +26,50 @@ Target Audience
 Java developers with basic Spring Boot testing experience who want to write more comprehensive and effective tests. Familiarity with JUnit 5 and Spring Boot fundamentals is expected.
 
 
+Agenda is same like last year
+
 ## Lab Overview
+
+- Introduction
+- Goals
+- Agenda
 
 ### Lab 1: Reliable Integration Tests:
 
 - Testcontainers usage
-- WireMock
+- Explain Testcontainers 101
+- Their default usage for databases
+- Overriding dynamic properties
+- Use Maiplit additionally
+
+- Effective WireMock usage
+- Proxying
+- Response templates
+- Showcasing stateful examples
 
 
-### Lab 2: Fast Builds:
+### Lab 2: Two Modes of Spring Boot Testing:
 
+- Discuss exercises
 - Context Caching
+- When to pick which test? 
+- No Context vs. Context -> Full Context vs. Sliced Context -> Full context with or w/o servlet environment
+- Implications to behaviour and performance
+- Show both modes in action
 
 
-### Lab 3: Reliable Tests with PIT:
+### Lab 3: Fast Builds & Reliable Builds:
 
+- Discuss exercises
+- Context Caching explained
+- Context Caching Tooling
+- Mutation Testing
+- Parallel Builds
 - Setup and example
-
 
 ### Lab 4: Testing Tips 101:
 
-- Tips & Tricks
-- Q&A
+- Discuss exercises
+- General Tips & Tricks for Maven, Pipelines and setup
+- Tooling
+- Q&A from the audience
