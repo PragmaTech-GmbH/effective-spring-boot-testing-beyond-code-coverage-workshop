@@ -24,3 +24,11 @@ The application has gained one new feature compared to the workshop baseline: **
 ```
 
 Mailpit UI: <http://localhost:8025> when running via `compose.yaml`.
+
+## Reference Solutions
+
+Worked solutions for every exercise live under `src/test/java/.../lab1/solutions/`:
+
+- `Solution1MailpitContainerTest` — Mailpit `GenericContainer` + dynamic SMTP properties
+- `Solution2DeleteBookSendsEmailIT` — full DELETE → Mailpit HTTP API assertion via Awaitility
+- `Solution3LocalDevTestcontainers` — `SpringApplication.from(...).with(...)` runner for local dev

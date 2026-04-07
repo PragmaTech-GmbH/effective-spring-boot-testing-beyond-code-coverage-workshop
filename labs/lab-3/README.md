@@ -26,3 +26,12 @@ Same baseline app. The goal here is **speed without sacrificing realism**.
 ./mvnw verify
 ./mvnw -T 1C verify     # parallel forks
 ```
+
+## Reference Solutions
+
+Worked solutions live under `src/test/java/.../lab3/solutions/`:
+
+- `SharedIntegrationTestBase` — single base class with a singleton Postgres container; every other solution extends it
+- `Solution1ContextCacheKillersIT` — same configuration, no cache killers, one cached context
+- `Solution2ParallelExecutionIT` — parallel-safe test (unique ISBNs, no static mutation, no `@DirtiesContext`)
+- `Solution3SingletonContainersIT` — verifies one Postgres container is shared across the whole JVM

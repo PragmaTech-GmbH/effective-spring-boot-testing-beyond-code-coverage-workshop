@@ -730,6 +730,36 @@ The goal is not zero failures - it is **fast, automatic recovery** when failures
 
 ---
 
+## Want This For Your Whole Team?
+
+### 90-Minute Hands-On Webinar — Delivered Internally at Your Company
+
+- Live, instructor-led, **for as many of your developers as you can fit**
+- Same Library Management System codebase, condensed to the highest-impact takeaways
+- Tailored to your team's stack (Spring Boot version, CI, DB, infra)
+- Q&A with a Spring Boot testing practitioner — not a generic trainer
+
+📩 **philip@pragmatech.digital** — let's pick a date.
+
+![bg right:33%](assets/end.jpg)
+
+---
+
+## Upcoming Open Online Workshops
+
+Join developers from across Europe in a public, hands-on cohort:
+
+- 🗓️ **Effective Spring Boot Testing** — full 2-day deep dive
+- 🗓️ **Spring Boot Production Readiness** — observability, resilience, ops
+- 🗓️ **Modern Java for Spring Developers** — records, sealed types, virtual threads
+
+Dates, agendas and tickets: **<https://pragmatech.digital/workshops>**
+
+Subscribe to the newsletter to get a heads-up before public seats open:
+**<https://rieckpil.de/newsletter>**
+
+---
+
 <!-- paginate: false -->
 
 ## Tusen takk!

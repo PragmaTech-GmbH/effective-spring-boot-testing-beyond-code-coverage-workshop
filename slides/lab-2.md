@@ -116,6 +116,19 @@ We'll use option 3 for **`RANDOM_PORT`** integration tests.
 
 ---
 
+## Alternative — Stub the JWKS with WireMock
+
+![bg right:40% w:90%](assets/lab-2-jwks-stub-flow.png)
+
+- Generate an RSA key pair in the test
+- Stub `/.well-known/openid-configuration` and `/protocol/openid-connect/certs` on a WireMock server
+- Sign tokens locally — the `NimbusJwtDecoder` fetches & caches your fake public key
+- Faster than Keycloak (no container boot), but you're not exercising a real IdP
+
+See `experiment/WireMockJwksAuthIT` in lab-2.
+
+---
+
 ## OAuth2 Option 3 — Sign a Token Yourself
 
 ```java

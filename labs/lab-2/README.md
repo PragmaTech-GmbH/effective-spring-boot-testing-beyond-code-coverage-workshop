@@ -20,3 +20,11 @@ Builds on Lab 1. Same baseline app (now sending an email when a book is deleted)
 ```bash
 ./mvnw verify
 ```
+
+## Reference Solutions
+
+Worked solutions live under `src/test/java/.../lab2/solutions/`:
+
+- `Solution1WireMockCreateBookIT` — full `POST /api/books` IT with WireMock-stubbed OpenLibrary
+- `Solution2RealJwtIT` — step-by-step guide for migrating to OAuth2 Resource Server and signing your own JWT (delivered as a documentation-only stub because the starter app uses HTTP Basic; converting `SecurityConfig` is part of the live walkthrough)
+- `Solution3MockVsRandomPortIT` — `RANDOM_PORT` test with `@AfterEach` cleanup instead of `@Transactional` rollback
