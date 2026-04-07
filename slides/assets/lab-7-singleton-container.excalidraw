@@ -1,0 +1,797 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "mlt3eiqs5wch2ihmwns",
+      "type": "text",
+      "x": 100,
+      "y": 20,
+      "strokeColor": "#1e1e1e",
+      "text": "Testcontainers: Naive vs. Singleton Container Pattern",
+      "fontSize": 22,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "zone-bad",
+      "type": "rectangle",
+      "x": 20,
+      "y": 60,
+      "width": 520,
+      "height": 440,
+      "backgroundColor": "#ffc9c9",
+      "strokeColor": "#e03131",
+      "roughness": 0,
+      "opacity": 25,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs96w4vtbcy0h",
+      "type": "text",
+      "x": 40,
+      "y": 75,
+      "strokeColor": "#e03131",
+      "text": "❌  Naive: @Testcontainers + @Container per class",
+      "fontSize": 17,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "bad-c1",
+      "type": "rectangle",
+      "x": 40,
+      "y": 110,
+      "width": 210,
+      "height": 90,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "roughness": 1,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs7ijq52o0na8",
+      "type": "text",
+      "x": 55,
+      "y": 125,
+      "strokeColor": "#1971c2",
+      "text": "BookControllerIT",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqskccggwijcxr",
+      "type": "text",
+      "x": 55,
+      "y": 148,
+      "strokeColor": "#e03131",
+      "text": "@Container (instance field)",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsq3gigediwo",
+      "type": "text",
+      "x": 55,
+      "y": 166,
+      "strokeColor": "#1e1e1e",
+      "text": "PostgreSQL postgres = ...",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "db1",
+      "type": "rectangle",
+      "x": 300,
+      "y": 125,
+      "width": 130,
+      "height": 55,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "roughness": 0,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqszumsq2630w8",
+      "type": "text",
+      "x": 320,
+      "y": 145,
+      "strokeColor": "#0c8599",
+      "text": "PostgreSQL #1",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.598Z",
+      "updatedAt": "2026-02-19T06:41:14.598Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs473ry0zdg7v",
+      "type": "arrow",
+      "x": 257.9994835210944,
+      "y": 153.71591495998757,
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          34.00103295781116,
+          -0.3863753745205827
+        ]
+      ],
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "bad-c1",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "db1",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "bad-c2",
+      "type": "rectangle",
+      "x": 40,
+      "y": 220,
+      "width": 210,
+      "height": 90,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "roughness": 1,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs931r6mwnde",
+      "type": "text",
+      "x": 55,
+      "y": 235,
+      "strokeColor": "#1971c2",
+      "text": "BookServiceIT",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsk8afbqog50m",
+      "type": "text",
+      "x": 55,
+      "y": 258,
+      "strokeColor": "#e03131",
+      "text": "@Container (instance field)",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsi0yxvpjf3y8",
+      "type": "text",
+      "x": 55,
+      "y": 276,
+      "strokeColor": "#1e1e1e",
+      "text": "PostgreSQL postgres = ...",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "db2",
+      "type": "rectangle",
+      "x": 300,
+      "y": 235,
+      "width": 130,
+      "height": 55,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "roughness": 0,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs34x8he3aryt",
+      "type": "text",
+      "x": 320,
+      "y": 255,
+      "strokeColor": "#0c8599",
+      "text": "PostgreSQL #2",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsll54s7w66ch",
+      "type": "arrow",
+      "x": 257.9994835210944,
+      "y": 263.7159149599876,
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          34.00103295781116,
+          -0.3863753745205827
+        ]
+      ],
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "bad-c2",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "db2",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "bad-c3",
+      "type": "rectangle",
+      "x": 40,
+      "y": 330,
+      "width": 210,
+      "height": 90,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "roughness": 1,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqst7cu8xnvlzi",
+      "type": "text",
+      "x": 55,
+      "y": 345,
+      "strokeColor": "#1971c2",
+      "text": "BookRepositoryIT",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsvkwmshg1b2h",
+      "type": "text",
+      "x": 55,
+      "y": 368,
+      "strokeColor": "#e03131",
+      "text": "@Container (instance field)",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs2ns1unj93sb",
+      "type": "text",
+      "x": 55,
+      "y": 386,
+      "strokeColor": "#1e1e1e",
+      "text": "PostgreSQL postgres = ...",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "db3",
+      "type": "rectangle",
+      "x": 300,
+      "y": 345,
+      "width": 130,
+      "height": 55,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "roughness": 0,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsvrgr1u7339i",
+      "type": "text",
+      "x": 320,
+      "y": 365,
+      "strokeColor": "#0c8599",
+      "text": "PostgreSQL #3",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsldwrvt4zgg",
+      "type": "arrow",
+      "x": 257.9994835210944,
+      "y": 373.7159149599876,
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          34.00103295781116,
+          -0.3863753745205827
+        ]
+      ],
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "bad-c3",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "db3",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mlt3eiqsq5j9ma2rp3",
+      "type": "text",
+      "x": 40,
+      "y": 440,
+      "strokeColor": "#e03131",
+      "text": "3 containers x ~5s startup = 15s wasted overhead",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "zone-good",
+      "type": "rectangle",
+      "x": 580,
+      "y": 60,
+      "width": 530,
+      "height": 440,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "roughness": 0,
+      "opacity": 25,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs0d83k4h2brv",
+      "type": "text",
+      "x": 600,
+      "y": 75,
+      "strokeColor": "#2f9e44",
+      "text": "✅  Singleton: static @Bean + @ServiceConnection",
+      "fontSize": 17,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "good-config",
+      "type": "rectangle",
+      "x": 600,
+      "y": 110,
+      "width": 230,
+      "height": 80,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#9c36b5",
+      "roughness": 1,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs4vfukdoosau",
+      "type": "text",
+      "x": 615,
+      "y": 122,
+      "strokeColor": "#9c36b5",
+      "text": "LocalDevTestcontainerConfig",
+      "fontSize": 13,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsjfdvfzw3q8s",
+      "type": "text",
+      "x": 615,
+      "y": 143,
+      "strokeColor": "#2f9e44",
+      "text": "@Bean @ServiceConnection",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqslfu0ulhke7i",
+      "type": "text",
+      "x": 615,
+      "y": 163,
+      "strokeColor": "#1e1e1e",
+      "text": "static PostgreSQL postgres()",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "good-db",
+      "type": "rectangle",
+      "x": 870,
+      "y": 200,
+      "width": 175,
+      "height": 190,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "roughness": 0,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs8winy2ag1wt",
+      "type": "text",
+      "x": 900,
+      "y": 225,
+      "strokeColor": "#0c8599",
+      "text": "PostgreSQL",
+      "fontSize": 16,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsazi33kld5pi",
+      "type": "text",
+      "x": 910,
+      "y": 250,
+      "strokeColor": "#0c8599",
+      "text": "(shared)",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs07y9b7c24jut",
+      "type": "text",
+      "x": 880,
+      "y": 280,
+      "strokeColor": "#e8590c",
+      "text": "HikariCP: pool x3",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsrdhqmsfempq",
+      "type": "text",
+      "x": 880,
+      "y": 298,
+      "strokeColor": "#e8590c",
+      "text": "Watch max_connections!",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqss94yse40fkp",
+      "type": "text",
+      "x": 880,
+      "y": 316,
+      "strokeColor": "#2f9e44",
+      "text": "Set pool-size: 5",
+      "fontSize": 12,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "good-c1",
+      "type": "rectangle",
+      "x": 600,
+      "y": 220,
+      "width": 220,
+      "height": 50,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "roughness": 1,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsn7qtrp7t0mg",
+      "type": "text",
+      "x": 615,
+      "y": 232,
+      "strokeColor": "#1971c2",
+      "text": "BookControllerIT",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqssn9hyh0tkk",
+      "type": "text",
+      "x": 615,
+      "y": 252,
+      "strokeColor": "#2f9e44",
+      "text": "@Import(LocalDevTestcontainerConfig)",
+      "fontSize": 11,
+      "createdAt": "2026-02-19T06:41:14.599Z",
+      "updatedAt": "2026-02-19T06:41:14.599Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsi7wpy40fwk",
+      "type": "arrow",
+      "x": 827.8415841584158,
+      "y": 268.8063806380638,
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          34.3168316831684,
+          6.93269326932699
+        ]
+      ],
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "good-c1",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "good-db",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "good-c2",
+      "type": "rectangle",
+      "x": 600,
+      "y": 290,
+      "width": 220,
+      "height": 50,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "roughness": 1,
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsqackhro2tok",
+      "type": "text",
+      "x": 615,
+      "y": 302,
+      "strokeColor": "#1971c2",
+      "text": "BookServiceIT",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsm51hl5obei",
+      "type": "text",
+      "x": 615,
+      "y": 322,
+      "strokeColor": "#2f9e44",
+      "text": "@Import(LocalDevTestcontainerConfig)",
+      "fontSize": 11,
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs8u376gdd61m",
+      "type": "arrow",
+      "x": 827.9740074447444,
+      "y": 305.466746873152,
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          34.05198511051117,
+          -2.7516755644857653
+        ]
+      ],
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "good-c2",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "good-db",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "good-c3",
+      "type": "rectangle",
+      "x": 600,
+      "y": 360,
+      "width": 220,
+      "height": 50,
+      "backgroundColor": "#ffffff",
+      "strokeColor": "#1971c2",
+      "roughness": 1,
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqs4xfigfds3ew",
+      "type": "text",
+      "x": 615,
+      "y": 372,
+      "strokeColor": "#1971c2",
+      "text": "BookRepositoryIT",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqslkd853r5q7h",
+      "type": "text",
+      "x": 615,
+      "y": 392,
+      "strokeColor": "#2f9e44",
+      "text": "@Import(LocalDevTestcontainerConfig)",
+      "fontSize": 11,
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsiewltk5k89",
+      "type": "arrow",
+      "x": 786.2683473879075,
+      "y": 357.2660554953064,
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          76.21330522418498,
+          -27.713929172430937
+        ]
+      ],
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "good-c3",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "good-db",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mlt3eiqsfb28pt4bjx",
+      "type": "arrow",
+      "x": 788.7627330000972,
+      "y": 194.10555169077983,
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          74.37108572394345,
+          44.46930898957436
+        ]
+      ],
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "good-config",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "good-db",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mlt3eiqs9r4akp4pob",
+      "type": "text",
+      "x": 600,
+      "y": 440,
+      "strokeColor": "#2f9e44",
+      "text": "1 container x 5s = 5s total  (+ context cache from Lab 6!)",
+      "fontSize": 14,
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1
+    },
+    {
+      "id": "mlt3eiqsm5iowaohyc",
+      "type": "text",
+      "x": 200,
+      "y": 525,
+      "strokeColor": "#1e1e1e",
+      "text": "Solution: fewer Spring contexts (Lab 6) + smaller Hikari pool size = no connection exhaustion",
+      "fontSize": 15,
+      "createdAt": "2026-02-19T06:41:14.600Z",
+      "updatedAt": "2026-02-19T06:41:14.600Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}

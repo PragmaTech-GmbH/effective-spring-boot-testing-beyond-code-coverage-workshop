@@ -1,0 +1,91 @@
+{
+  "name": "Spring Boot Testing Workshop",
+  "image": "mcr.microsoft.com/devcontainers/java:21-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": true,
+      "mavenVersion": "3.9.12"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": false
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-spring-boot-dashboard",
+        "vscjava.vscode-java-test",
+        "vmware.vscode-boot-dev-pack",
+        "redhat.java",
+        "redhat.vscode-xml",
+        "gabrielbb.vscode-lombok",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
+        "java.format.settings.profile": "GoogleStyle",
+        "editor.formatOnSave": true,
+        "java.completion.importOrder": [
+          "java",
+          "javax",
+          "org",
+          "com",
+          "pragmatech"
+        ],
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.jdt.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
+        "spring-boot.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
+        "java.import.gradle.enabled": true,
+        "java.import.maven.enabled": true,
+        "java.project.importOnFirstTimeStartup": "automatic",
+        "java.project.importHint": false,
+        "java.project.referencedLibraries": [
+          "lib/**/*.jar"
+        ],
+        "java.maven.downloadSources": true,
+        "java.server.launchMode": "Standard",
+        "java.autobuild.enabled": true,
+        "java.import.exclusions": [
+          "**/node_modules/**",
+          "**/.metadata/**",
+          "**/archetype-resources/**",
+          "**/META-INF/maven/**"
+        ],
+        "java.test.config": {
+          "workingDirectory": "${workspaceFolder}"
+        },
+        "java.test.editor.enableShortcuts": true,
+        "testExplorer.useNativeTesting": true,
+        "testing.automaticallyOpenPeekView": "never",
+        "testing.gutterEnabled": true,
+        "testing.openTesting": "neverOpen",
+        "java.debug.settings.console": "internalConsole",
+        "java.test.defaultConfig": "default",
+        "terminal.integrated.scrollback": 10000,
+        "java.test.message.lineLength": 120,
+        "java.test.message.format": "text",
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.codeActionsOnSave": {
+          "source.organizeImports": true
+        },
+        "workbench.colorTheme": "Visual Studio Light",
+        "editor.fontSize": 16,
+        "terminal.integrated.fontSize": 14,
+        "debug.console.fontSize": 14,
+        "markdown.preview.fontSize": 14,
+        "editor.fontFamily": "'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace",
+        "editor.fontLigatures": true,
+        "editor.lineHeight": 24,
+        "redhat.telemetry.enabled": false,
+        "java.compile.nullAnalysis.mode": "automatic"
+      }
+    }
+  },
+  "forwardPorts": [
+    8080
+  ],
+  "postCreateCommand": "bash .devcontainer/setup.sh",
+  "remoteUser": "vscode"
+}

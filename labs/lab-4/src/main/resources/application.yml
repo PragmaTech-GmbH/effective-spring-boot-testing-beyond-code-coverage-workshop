@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  application:
+    name: lab-4
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+# Book Metadata API (OpenLibrary)
+book:
+  metadata:
+    api:
+      url: https://openlibrary.org
+      timeout: 5
+
+bookshelf:
+  notification:
+    from: library@example.com
+    deletion-recipient: librarian@example.com
