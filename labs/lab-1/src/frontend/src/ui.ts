@@ -67,11 +67,28 @@ export function renderApp(root: HTMLElement): void {
           </form>
         </section>
       </main>
+
+      <footer class="max-w-6xl mx-auto px-6 py-6 mt-8 border-t border-slate-200 text-xs text-slate-500">
+        <p class="font-medium text-slate-600">Effective Spring Boot Testing — Beyond Code Coverage Workshop</p>
+        <p class="mt-1">Test users (username / password):</p>
+        <ul class="mt-1 space-y-0.5">
+          <li><code>alice</code> / <code>alice</code> &mdash; <span class="text-slate-400">books:read</span></li>
+          <li><code>bob</code> / <code>bob</code> &mdash; <span class="text-slate-400">books:write</span></li>
+          <li><code>admin</code> / <code>admin</code> &mdash; <span class="text-slate-400">books:read, books:write</span></li>
+        </ul>
+        <p class="mt-3">Sample IT book ISBNs <span class="text-slate-400">(click to copy)</span>:</p>
+        <ul class="mt-1 space-y-0.5">
+          <li><button type="button" data-isbn="978-0132350884" class="isbn-copy font-mono text-indigo-600 hover:underline">978-0132350884</button> &mdash; Clean Code</li>
+          <li><button type="button" data-isbn="978-0201616224" class="isbn-copy font-mono text-indigo-600 hover:underline">978-0201616224</button> &mdash; The Pragmatic Programmer</li>
+          <li><button type="button" data-isbn="978-0201485677" class="isbn-copy font-mono text-indigo-600 hover:underline">978-0201485677</button> &mdash; Refactoring</li>
+        </ul>
+      </footer>
     </div>
   `;
 
   renderAuthArea();
   wireCreateForm();
+  wireIsbnCopy();
   document.getElementById('refresh-btn')!.addEventListener('click', () => refreshBooks());
   refreshBooks();
 }
@@ -198,6 +215,15 @@ function wireCreateForm(): void {
   const form = document.getElementById('create-form') as HTMLFormElement;
   form.addEventListener('submit', async event => {
     event.preventDefault();
+    const createButton = document.getElementById('create-btn') as HTMLButtonElement;
+    const originalLabel = createButton.innerHTML;
+    createButton.disabled = true;
+    createButton.innerHTML = `
+      <span class="inline-flex items-center gap-2">
+        <span class="inline-block h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+        Creating&hellip;
+      </span>
+    `;
     const formData = new FormData(form);
     try {
       await createBook({
@@ -210,7 +236,28 @@ function wireCreateForm(): void {
       refreshBooks();
     } catch (error) {
       showToast('error', `Create failed: ${describeError(error)}`);
+    } finally {
+      createButton.innerHTML = originalLabel;
+      createButton.disabled = !hasScope('books:write');
     }
+  });
+}
+
+function wireIsbnCopy(): void {
+  document.querySelectorAll<HTMLButtonElement>('button.isbn-copy').forEach(button => {
+    button.addEventListener('click', async () => {
+      const isbn = button.dataset.isbn ?? '';
+      const isbnInput = document.querySelector<HTMLInputElement>('#create-form input[name="isbn"]');
+      if (isbnInput) {
+        isbnInput.value = isbn;
+      }
+      try {
+        await navigator.clipboard.writeText(isbn);
+      } catch {
+        // ignore — input was still populated
+      }
+      showToast('success', `Copied ${isbn}`);
+    });
   });
 }
 

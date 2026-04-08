@@ -107,7 +107,7 @@ class OpenLibraryApiClientTest {
         .willReturn(aResponse().withStatus(500)));
 
       assertThatThrownBy(() -> cut.fetchMetadataForIsbn(isbn))
-        .hasRootCauseMessage("Retries exhausted: 2/2");
+        .hasRootCauseInstanceOf(org.springframework.web.reactive.function.client.WebClientResponseException.InternalServerError.class);
 
       wireMock.verify(3, getRequestedFor(urlPathEqualTo("/api/books")));
     }
