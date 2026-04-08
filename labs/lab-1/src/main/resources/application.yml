@@ -7,6 +7,11 @@ spring:
     open-in-view: false
   application:
     name: lab-1
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:http://localhost:8090/realms/test-realm}
   mail:
     host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:1025}

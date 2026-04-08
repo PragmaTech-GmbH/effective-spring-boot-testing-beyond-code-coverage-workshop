@@ -48,6 +48,8 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 - **Sends an email** via Spring Mail when a book is **deleted**
 - Publishes domain events on creation
 
+![w:720](assets/lab-1-sample-application.png)
+
 ---
 
 ## Two Modes of Testing in Spring Boot

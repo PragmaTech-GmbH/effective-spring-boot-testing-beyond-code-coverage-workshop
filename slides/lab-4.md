@@ -760,6 +760,21 @@ Subscribe to the newsletter to get a heads-up before public seats open:
 
 ---
 
+## Get Your Certificate of Participation
+
+![bg right:55% w:95%](assets/lab-4-certificate.png)
+
+You made it through a full day of advanced Spring Boot testing — that deserves a souvenir.
+
+**To claim your personalised certificate:**
+
+📩 Send a short email to **philip@pragmatech.digital**
+with your **full name** (exactly as you'd like it printed) and the workshop date.
+
+You'll get the signed PDF back within a day.
+
+---
+
 <!-- paginate: false -->
 
 ## Tusen takk!

@@ -6,14 +6,12 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import pragmatech.digital.workshops.lab1.client.OpenLibraryApiClient;
 import pragmatech.digital.workshops.lab1.dto.BookCreationRequest;
 import pragmatech.digital.workshops.lab1.dto.BookMetadataResponse;
 import pragmatech.digital.workshops.lab1.dto.BookUpdateRequest;
 import pragmatech.digital.workshops.lab1.entity.Book;
-import pragmatech.digital.workshops.lab1.event.BookCreatedEvent;
 import pragmatech.digital.workshops.lab1.exception.BookAlreadyExistsException;
 import pragmatech.digital.workshops.lab1.repository.BookRepository;
 
@@ -24,18 +22,15 @@ public class BookService {
 
   private final BookRepository bookRepository;
   private final OpenLibraryApiClient openLibraryApiClient;
-  private final ApplicationEventPublisher eventPublisher;
   private final BookNotificationService bookNotificationService;
   private final String deletionNotificationRecipient;
 
   public BookService(BookRepository bookRepository,
-      OpenLibraryApiClient openLibraryApiClient,
-      ApplicationEventPublisher eventPublisher,
-      BookNotificationService bookNotificationService,
-      @Value("${bookshelf.notification.deletion-recipient:librarian@example.com}") String deletionNotificationRecipient) {
+    OpenLibraryApiClient openLibraryApiClient,
+    BookNotificationService bookNotificationService,
+    @Value("${bookshelf.notification.deletion-recipient:librarian@example.com}") String deletionNotificationRecipient) {
     this.bookRepository = bookRepository;
     this.openLibraryApiClient = openLibraryApiClient;
-    this.eventPublisher = eventPublisher;
     this.bookNotificationService = bookNotificationService;
     this.deletionNotificationRecipient = deletionNotificationRecipient;
   }
@@ -57,7 +52,7 @@ public class BookService {
     book.setThumbnailUrl(metadata.getCoverUrl());
 
     Book savedBook = bookRepository.save(book);
-    eventPublisher.publishEvent(new BookCreatedEvent(savedBook.getId(), savedBook.getIsbn(), savedBook.getTitle()));
+
     return savedBook.getId();
   }
 
@@ -84,11 +79,7 @@ public class BookService {
     return bookRepository.findById(id)
       .map(book -> {
         bookRepository.delete(book);
-        try {
-          bookNotificationService.notifyDeletedBook(book.getTitle(), book.getIsbn(), deletionNotificationRecipient);
-        } catch (Exception e) {
-          logger.warn("Failed to send deletion notification email for book id={}", id, e);
-        }
+        bookNotificationService.notifyDeletedBook(book.getTitle(), book.getIsbn(), deletionNotificationRecipient);
         return true;
       })
       .orElse(false);

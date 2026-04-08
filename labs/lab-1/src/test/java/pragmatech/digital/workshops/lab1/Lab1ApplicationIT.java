@@ -4,11 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ContextConfiguration;
-import pragmatech.digital.workshops.lab1.config.WireMockContextInitializer;
 
 @SpringBootTest
-@Import(LocalDevTestcontainerConfig.class)
-@ContextConfiguration(initializers = WireMockContextInitializer.class)
+@Import(LocalDevTestcontainersConfig.class)
 class Lab1ApplicationIT {
 
   @Test
