@@ -25,14 +25,17 @@ public class Book {
   @Column(nullable = false, unique = true)
   private String isbn;
 
+  @Column(name = "internal_name", nullable = false)
+  private String internalName;
+
+  @Column(name = "availability_date", nullable = false)
+  private LocalDate availabilityDate;
+
   @Column(nullable = false)
   private String title;
 
   @Column(nullable = false)
   private String author;
-
-  @Column(nullable = false)
-  private LocalDate publishedDate;
 
   @Column
   private String description;
@@ -44,15 +47,15 @@ public class Book {
   @Column(nullable = false)
   private BookStatus status = BookStatus.AVAILABLE;
 
-  // Default constructor for JPA
   public Book() {
   }
 
-  public Book(String isbn, String title, String author, LocalDate publishedDate) {
+  public Book(String isbn, String internalName, LocalDate availabilityDate, String title, String author) {
     this.isbn = isbn;
+    this.internalName = internalName;
+    this.availabilityDate = availabilityDate;
     this.title = title;
     this.author = author;
-    this.publishedDate = publishedDate;
     this.status = BookStatus.AVAILABLE;
   }
 
@@ -66,6 +69,22 @@ public class Book {
 
   public void setIsbn(String isbn) {
     this.isbn = isbn;
+  }
+
+  public String getInternalName() {
+    return internalName;
+  }
+
+  public void setInternalName(String internalName) {
+    this.internalName = internalName;
+  }
+
+  public LocalDate getAvailabilityDate() {
+    return availabilityDate;
+  }
+
+  public void setAvailabilityDate(LocalDate availabilityDate) {
+    this.availabilityDate = availabilityDate;
   }
 
   public String getTitle() {
@@ -82,14 +101,6 @@ public class Book {
 
   public void setAuthor(String author) {
     this.author = author;
-  }
-
-  public LocalDate getPublishedDate() {
-    return publishedDate;
-  }
-
-  public void setPublishedDate(LocalDate publishedDate) {
-    this.publishedDate = publishedDate;
   }
 
   public BookStatus getStatus() {
@@ -128,7 +139,6 @@ public class Book {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     Book book = (Book) o;
     if (id != null) {
       return id.equals(book.id);
@@ -146,9 +156,10 @@ public class Book {
     return "Book{" +
       "id=" + id +
       ", isbn='" + isbn + '\'' +
+      ", internalName='" + internalName + '\'' +
+      ", availabilityDate=" + availabilityDate +
       ", title='" + title + '\'' +
       ", author='" + author + '\'' +
-      ", publishedDate=" + publishedDate +
       ", status=" + status +
       '}';
   }

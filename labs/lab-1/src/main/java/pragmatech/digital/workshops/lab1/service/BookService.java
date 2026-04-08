@@ -8,11 +8,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import pragmatech.digital.workshops.lab1.client.OpenLibraryApiClient;
+import pragmatech.digital.workshops.lab1.client.OpenLibraryApiClient.BookMetadata;
 import pragmatech.digital.workshops.lab1.dto.BookCreationRequest;
-import pragmatech.digital.workshops.lab1.dto.BookMetadataResponse;
 import pragmatech.digital.workshops.lab1.dto.BookUpdateRequest;
 import pragmatech.digital.workshops.lab1.entity.Book;
 import pragmatech.digital.workshops.lab1.exception.BookAlreadyExistsException;
+import pragmatech.digital.workshops.lab1.exception.BookMetadataUnavailableException;
 import pragmatech.digital.workshops.lab1.repository.BookRepository;
 
 @Service
@@ -40,19 +41,24 @@ public class BookService {
       throw new BookAlreadyExistsException(request.isbn());
     }
 
+    BookMetadata metadata = openLibraryApiClient.fetchMetadataForIsbn(request.isbn())
+      .orElseThrow(() -> new BookMetadataUnavailableException(request.isbn()));
+
+    if (metadata.title() == null || metadata.author() == null) {
+      logger.warn("OpenLibrary record for ISBN {} is missing title or author: {}", request.isbn(), metadata);
+      throw new BookMetadataUnavailableException(request.isbn());
+    }
+
     Book book = new Book(
       request.isbn(),
-      request.title(),
-      request.author(),
-      request.publishedDate()
+      request.internalName(),
+      request.availabilityDate(),
+      metadata.title(),
+      metadata.author()
     );
-
-    BookMetadataResponse metadata = openLibraryApiClient.getBookByIsbn(request.isbn());
-
-    book.setThumbnailUrl(metadata.getCoverUrl());
+    book.setThumbnailUrl(metadata.thumbnailUrl());
 
     Book savedBook = bookRepository.save(book);
-
     return savedBook.getId();
   }
 
@@ -67,9 +73,8 @@ public class BookService {
   public Optional<Book> updateBook(Long id, BookUpdateRequest request) {
     return bookRepository.findById(id)
       .map(book -> {
-        book.setTitle(request.title());
-        book.setAuthor(request.author());
-        book.setPublishedDate(request.publishedDate());
+        book.setInternalName(request.internalName());
+        book.setAvailabilityDate(request.availabilityDate());
         book.setStatus(request.status());
         return bookRepository.save(book);
       });

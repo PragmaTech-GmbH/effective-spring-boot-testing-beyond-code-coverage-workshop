@@ -1,4 +1,5 @@
 import {
+  ApiError,
   Book,
   BookStatus,
   createBook,
@@ -20,16 +21,16 @@ export function renderApp(root: HTMLElement): void {
   root.innerHTML = `
     <div class="min-h-screen">
       <header class="bg-white border-b border-slate-200 shadow-sm">
-        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
             <h1 class="text-xl font-semibold">Bookshelf Admin View</h1>
-            <p class="text-sm text-slate-500">Exercise the CRUD API against a Keycloak-secured Spring Boot backend.</p>
+            <p class="text-sm text-slate-500">Create books by ISBN — title, author and cover are fetched from OpenLibrary.</p>
           </div>
           <div id="auth-area" class="flex items-center gap-3"></div>
         </div>
       </header>
 
-      <main class="max-w-5xl mx-auto px-6 py-8 space-y-8">
+      <main class="max-w-6xl mx-auto px-6 py-8 space-y-8">
         <section id="toast-area" class="space-y-2"></section>
 
         <section class="bg-white rounded-lg border border-slate-200 shadow-sm">
@@ -42,29 +43,25 @@ export function renderApp(root: HTMLElement): void {
 
         <section id="create-section" class="bg-white rounded-lg border border-slate-200 shadow-sm">
           <div class="px-6 py-4 border-b border-slate-200">
-            <h2 class="font-medium">Create a new book</h2>
-            <p class="text-xs text-slate-500">Requires <code>books:write</code> (log in as bob or admin).</p>
+            <h2 class="font-medium">Add a new book</h2>
+            <p class="text-xs text-slate-500">Requires <code>books:write</code>. Title, author and cover are enriched from OpenLibrary on creation.</p>
           </div>
-          <form id="create-form" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <form id="create-form" class="p-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
             <label class="flex flex-col text-sm">
-              ISBN (e.g. 978-0134685991)
+              ISBN (e.g. 978-0321356680)
               <input name="isbn" required pattern="^\\d{3}-\\d{10}$" class="mt-1 border border-slate-300 rounded px-3 py-2" />
             </label>
             <label class="flex flex-col text-sm">
-              Title
-              <input name="title" required class="mt-1 border border-slate-300 rounded px-3 py-2" />
+              Internal name / shelf label
+              <input name="internalName" required placeholder="SHELF-A-1" class="mt-1 border border-slate-300 rounded px-3 py-2" />
             </label>
             <label class="flex flex-col text-sm">
-              Author
-              <input name="author" required class="mt-1 border border-slate-300 rounded px-3 py-2" />
+              Availability date
+              <input name="availabilityDate" required type="date" class="mt-1 border border-slate-300 rounded px-3 py-2" />
             </label>
-            <label class="flex flex-col text-sm">
-              Published date
-              <input name="publishedDate" required type="date" class="mt-1 border border-slate-300 rounded px-3 py-2" />
-            </label>
-            <div class="sm:col-span-2">
+            <div class="sm:col-span-3">
               <button id="create-btn" type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed" disabled>
-                Create book
+                Create &amp; enrich from OpenLibrary
               </button>
             </div>
           </form>
@@ -118,11 +115,12 @@ async function refreshBooks(): Promise<void> {
       <table class="w-full text-sm text-left">
         <thead class="text-xs uppercase text-slate-500 border-b border-slate-200">
           <tr>
-            <th class="py-2 pr-4">ID</th>
+            <th class="py-2 pr-4">Cover</th>
             <th class="py-2 pr-4">ISBN</th>
+            <th class="py-2 pr-4">Internal</th>
             <th class="py-2 pr-4">Title</th>
             <th class="py-2 pr-4">Author</th>
-            <th class="py-2 pr-4">Published</th>
+            <th class="py-2 pr-4">Available</th>
             <th class="py-2 pr-4">Status</th>
             <th class="py-2"></th>
           </tr>
@@ -143,13 +141,17 @@ function bookRow(book: Book): string {
   const statusOptions = BOOK_STATUSES
     .map(status => `<option value="${status}" ${status === book.status ? 'selected' : ''}>${status}</option>`)
     .join('');
+  const cover = book.thumbnailUrl
+    ? `<img src="${escapeAttr(book.thumbnailUrl)}" alt="cover" class="h-14 w-auto rounded shadow-sm" />`
+    : '<div class="h-14 w-10 bg-slate-100 rounded text-[10px] text-slate-400 flex items-center justify-center">no cover</div>';
   return `
-    <tr class="border-b border-slate-100" data-book-id="${book.id}">
-      <td class="py-2 pr-4">${book.id}</td>
-      <td class="py-2 pr-4">${book.isbn}</td>
-      <td class="py-2 pr-4"><input data-field="title" class="w-full border border-slate-200 rounded px-2 py-1" value="${escapeAttr(book.title)}" ${canWrite ? '' : 'disabled'} /></td>
-      <td class="py-2 pr-4"><input data-field="author" class="w-full border border-slate-200 rounded px-2 py-1" value="${escapeAttr(book.author)}" ${canWrite ? '' : 'disabled'} /></td>
-      <td class="py-2 pr-4"><input data-field="publishedDate" type="date" class="border border-slate-200 rounded px-2 py-1" value="${book.publishedDate}" ${canWrite ? '' : 'disabled'} /></td>
+    <tr class="border-b border-slate-100 align-top" data-book-id="${book.id}">
+      <td class="py-2 pr-4">${cover}</td>
+      <td class="py-2 pr-4 font-mono text-xs">${book.isbn}</td>
+      <td class="py-2 pr-4"><input data-field="internalName" class="w-full border border-slate-200 rounded px-2 py-1" value="${escapeAttr(book.internalName)}" ${canWrite ? '' : 'disabled'} /></td>
+      <td class="py-2 pr-4">${escapeHtml(book.title)}</td>
+      <td class="py-2 pr-4">${escapeHtml(book.author)}</td>
+      <td class="py-2 pr-4"><input data-field="availabilityDate" type="date" class="border border-slate-200 rounded px-2 py-1" value="${book.availabilityDate}" ${canWrite ? '' : 'disabled'} /></td>
       <td class="py-2 pr-4">
         <select data-field="status" class="border border-slate-200 rounded px-2 py-1" ${canWrite ? '' : 'disabled'}>${statusOptions}</select>
       </td>
@@ -167,16 +169,15 @@ function wireRowActions(book: Book): void {
     return;
   }
   row.querySelector<HTMLButtonElement>('button[data-action="save"]')?.addEventListener('click', async () => {
-    const title = row.querySelector<HTMLInputElement>('input[data-field="title"]')!.value;
-    const author = row.querySelector<HTMLInputElement>('input[data-field="author"]')!.value;
-    const publishedDate = row.querySelector<HTMLInputElement>('input[data-field="publishedDate"]')!.value;
+    const internalName = row.querySelector<HTMLInputElement>('input[data-field="internalName"]')!.value;
+    const availabilityDate = row.querySelector<HTMLInputElement>('input[data-field="availabilityDate"]')!.value;
     const status = row.querySelector<HTMLSelectElement>('select[data-field="status"]')!.value as BookStatus;
     try {
-      await updateBook(book.id, { title, author, publishedDate, status });
-      showToast('success', `Updated "${title}".`);
+      await updateBook(book.id, { internalName, availabilityDate, status });
+      showToast('success', `Updated "${book.title}".`);
       refreshBooks();
     } catch (error) {
-      showToast('error', `Update failed: ${(error as Error).message}`);
+      showToast('error', `Update failed: ${describeError(error)}`);
     }
   });
   row.querySelector<HTMLButtonElement>('button[data-action="delete"]')?.addEventListener('click', async () => {
@@ -188,7 +189,7 @@ function wireRowActions(book: Book): void {
       showToast('success', `Deleted "${book.title}".`);
       refreshBooks();
     } catch (error) {
-      showToast('error', `Delete failed: ${(error as Error).message}`);
+      showToast('error', `Delete failed: ${describeError(error)}`);
     }
   });
 }
@@ -201,17 +202,29 @@ function wireCreateForm(): void {
     try {
       await createBook({
         isbn: String(formData.get('isbn')),
-        title: String(formData.get('title')),
-        author: String(formData.get('author')),
-        publishedDate: String(formData.get('publishedDate')),
+        internalName: String(formData.get('internalName')),
+        availabilityDate: String(formData.get('availabilityDate')),
       });
-      showToast('success', 'Book created.');
+      showToast('success', 'Book created and enriched from OpenLibrary.');
       form.reset();
       refreshBooks();
     } catch (error) {
-      showToast('error', `Create failed: ${(error as Error).message}`);
+      showToast('error', `Create failed: ${describeError(error)}`);
     }
   });
+}
+
+function describeError(error: unknown): string {
+  if (error instanceof ApiError) {
+    if (error.status === 422) {
+      return `${error.detail ?? 'OpenLibrary has no record for this ISBN.'}`;
+    }
+    if (error.status === 401 || error.status === 403) {
+      return `${error.status} — log in as bob or admin for write access.`;
+    }
+    return error.detail ? `${error.status}: ${error.detail}` : error.message;
+  }
+  return (error as Error).message;
 }
 
 function showToast(kind: 'success' | 'error', message: string): void {
@@ -221,9 +234,16 @@ function showToast(kind: 'success' | 'error', message: string): void {
   toast.className = `rounded px-4 py-2 text-sm ${color}`;
   toast.textContent = message;
   area.appendChild(toast);
-  setTimeout(() => toast.remove(), 4000);
+  setTimeout(() => toast.remove(), 5000);
 }
 
 function escapeAttr(value: string): string {
   return value.replace(/"/g, '&quot;');
+}
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
 }

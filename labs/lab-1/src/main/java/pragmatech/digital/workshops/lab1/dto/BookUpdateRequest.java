@@ -4,22 +4,18 @@ import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
 import pragmatech.digital.workshops.lab1.entity.BookStatus;
 
 /**
- * DTO for book update requests using Java Record
+ * DTO for updating a book. Only library-internal fields and status are mutable;
+ * bibliographic data (title, author, thumbnail) is fixed once enriched from OpenLibrary.
  */
 public record BookUpdateRequest(
-  @NotBlank(message = "Title is required")
-  String title,
+  @NotBlank(message = "Internal name is required")
+  String internalName,
 
-  @NotBlank(message = "Author is required")
-  String author,
-
-  @NotNull(message = "Published date is required")
-  @Past(message = "Published date must be in the past")
-  LocalDate publishedDate,
+  @NotNull(message = "Availability date is required")
+  LocalDate availabilityDate,
 
   @NotNull(message = "Status is required")
   BookStatus status

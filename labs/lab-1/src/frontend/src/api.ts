@@ -5,26 +5,31 @@ export type BookStatus = 'AVAILABLE' | 'BORROWED' | 'RESERVED' | 'MAINTENANCE';
 export interface Book {
   id: number;
   isbn: string;
+  internalName: string;
+  availabilityDate: string;
   title: string;
   author: string;
-  publishedDate: string;
-  status: BookStatus;
-  description?: string;
   thumbnailUrl?: string;
+  description?: string;
+  status: BookStatus;
 }
 
 export interface BookCreationRequest {
   isbn: string;
-  title: string;
-  author: string;
-  publishedDate: string;
+  internalName: string;
+  availabilityDate: string;
 }
 
 export interface BookUpdateRequest {
-  title: string;
-  author: string;
-  publishedDate: string;
+  internalName: string;
+  availabilityDate: string;
   status: BookStatus;
+}
+
+export class ApiError extends Error {
+  constructor(public readonly status: number, message: string, public readonly detail?: string) {
+    super(message);
+  }
 }
 
 const API_BASE = '/api/books';
@@ -43,7 +48,14 @@ async function authHeaders(): Promise<Record<string, string>> {
 
 async function handle<T>(response: Response): Promise<T> {
   if (!response.ok) {
-    throw new Error(`${response.status} ${response.statusText}`);
+    let detail: string | undefined;
+    try {
+      const body = await response.json();
+      detail = body.detail ?? body.title;
+    } catch {
+      // ignore body parse failures
+    }
+    throw new ApiError(response.status, `${response.status} ${response.statusText}`, detail);
   }
   if (response.status === 204) {
     return undefined as T;

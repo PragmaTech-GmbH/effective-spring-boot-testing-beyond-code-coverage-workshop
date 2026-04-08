@@ -57,7 +57,7 @@ class Solution2DeleteBookSendsEmailIT extends AbstractOAuth2IntegrationTest {
   @Test
   void shouldSendDeletionEmailWhenBookIsDeleted() {
     Book savedBook = bookRepository.save(new Book(
-      "9780000000001", "A Doomed Book", "Anonymous", LocalDate.of(2024, 1, 1)));
+      "9780000000001", "SHELF-DOOM-1", LocalDate.of(2024, 1, 1), "A Doomed Book", "Anonymous"));
 
     String token = fetchPasswordGrantToken("admin", "admin");
 
