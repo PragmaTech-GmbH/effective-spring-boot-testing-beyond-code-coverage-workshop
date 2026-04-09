@@ -1,5 +1,6 @@
 package pragmatech.digital.workshops.lab1.experiment;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import pragmatech.digital.workshops.lab1.repository.BookRepository;
 
 @AutoConfigureRestTestClient
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -22,6 +24,9 @@ public class BookControllerIT {
   @Autowired
   private RestTestClient restTestClient;
 
+  @Autowired
+  private BookRepository bookRepository;
+
   @ServiceConnection
   private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine").withReuse(true);
   private static final KeycloakContainer KEYCLOAK = new KeycloakContainer().withReuse(true);
@@ -31,6 +36,11 @@ public class BookControllerIT {
     KEYCLOAK.start();
     MAILPIT.start();
     POSTGRES.start();
+  }
+
+  @BeforeEach
+  void cleanup() {
+    this.bookRepository.deleteAll();
   }
 
   @DynamicPropertySource
@@ -54,9 +64,9 @@ public class BookControllerIT {
       .contentType(MediaType.APPLICATION_JSON)
       .body("""
         {
-          "isbn":"978-0201616224",
-          "internalName":"SHELF_1",
-          "availabilityDate":"2027-01-01"
+          "isbn": "978-0201616224",
+          "internalName": "SHELF_1",
+          "availabilityDate": "2027-01-01"
         }
         """)
       .exchangeSuccessfully();

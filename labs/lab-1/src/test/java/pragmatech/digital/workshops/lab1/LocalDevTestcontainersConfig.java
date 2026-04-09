@@ -1,5 +1,7 @@
 package pragmatech.digital.workshops.lab1;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.ApplicationRunner;
@@ -8,7 +10,8 @@ import org.springframework.boot.testcontainers.service.connection.ServiceConnect
 import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.test.context.DynamicPropertyRegistrar;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import pragmatech.digital.workshops.lab1.experiment.KeycloakContainer;
 import pragmatech.digital.workshops.lab1.experiment.MailpitContainer;
@@ -34,7 +37,9 @@ public class LocalDevTestcontainersConfig {
 
   @Bean
   KeycloakContainer keycloak() {
-    return new KeycloakContainer();
+    KeycloakContainer kc = new KeycloakContainer();
+    kc.setPortBindings(List.of("8090:8080")); // workaround to allow a static frontend configuration of the Keycloak URL
+    return kc;
   }
 
   @Bean
@@ -56,13 +61,7 @@ public class LocalDevTestcontainersConfig {
   }
 
   @Bean
-  DynamicPropertyRegistrar keycloakProperties(KeycloakContainer keycloak, MailpitContainer mailpitContainer) {
-    return registry -> {
-      registry.add(
-        "spring.security.oauth2.resourceserver.jwt.issuer-uri",
-        keycloak::getIssuerUri);
-      registry.add("spring.mail.host", mailpitContainer::getHost);
-      registry.add("spring.mail.port", mailpitContainer::getSmtpPort);
-    };
+  JwtDecoder jwtDecoder(KeycloakContainer keycloak) {
+    return JwtDecoders.fromIssuerLocation(keycloak.getIssuerUri());
   }
 }

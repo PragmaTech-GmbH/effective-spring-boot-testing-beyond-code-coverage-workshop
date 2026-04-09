@@ -2,8 +2,3 @@ spring:
   docker:
     compose:
       enabled: false
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          issuer-uri: http://localhost:8090/realms/test-realm
