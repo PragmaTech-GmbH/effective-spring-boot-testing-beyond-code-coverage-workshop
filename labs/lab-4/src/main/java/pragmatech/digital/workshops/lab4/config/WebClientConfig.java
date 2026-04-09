@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,8 @@ import reactor.netty.http.client.HttpClient;
 
 @Configuration
 public class WebClientConfig {
+
+  private static final Logger LOG = LoggerFactory.getLogger(WebClientConfig.class);
 
   @Bean
   public Clock clock() {
@@ -51,7 +55,7 @@ public class WebClientConfig {
 
   private ExchangeFilterFunction logRequest() {
     return ExchangeFilterFunction.ofRequestProcessor(clientRequest -> {
-      System.out.println("Request: " + clientRequest.method() + " " + clientRequest.url());
+      LOG.info("Request going out: {} {}", clientRequest.method(), clientRequest.url());
       return Mono.just(clientRequest);
     });
   }

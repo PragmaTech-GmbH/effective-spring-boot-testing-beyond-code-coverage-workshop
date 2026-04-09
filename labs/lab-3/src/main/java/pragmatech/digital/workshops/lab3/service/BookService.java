@@ -6,15 +6,14 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import pragmatech.digital.workshops.lab3.client.OpenLibraryApiClient;
+import pragmatech.digital.workshops.lab3.client.OpenLibraryApiClient.BookMetadata;
 import pragmatech.digital.workshops.lab3.dto.BookCreationRequest;
-import pragmatech.digital.workshops.lab3.dto.BookMetadataResponse;
 import pragmatech.digital.workshops.lab3.dto.BookUpdateRequest;
 import pragmatech.digital.workshops.lab3.entity.Book;
-import pragmatech.digital.workshops.lab3.event.BookCreatedEvent;
 import pragmatech.digital.workshops.lab3.exception.BookAlreadyExistsException;
+import pragmatech.digital.workshops.lab3.exception.BookMetadataUnavailableException;
 import pragmatech.digital.workshops.lab3.repository.BookRepository;
 
 @Service
@@ -24,18 +23,15 @@ public class BookService {
 
   private final BookRepository bookRepository;
   private final OpenLibraryApiClient openLibraryApiClient;
-  private final ApplicationEventPublisher eventPublisher;
   private final BookNotificationService bookNotificationService;
   private final String deletionNotificationRecipient;
 
   public BookService(BookRepository bookRepository,
-      OpenLibraryApiClient openLibraryApiClient,
-      ApplicationEventPublisher eventPublisher,
-      BookNotificationService bookNotificationService,
-      @Value("${bookshelf.notification.deletion-recipient:librarian@example.com}") String deletionNotificationRecipient) {
+    OpenLibraryApiClient openLibraryApiClient,
+    BookNotificationService bookNotificationService,
+    @Value("${bookshelf.notification.deletion-recipient:librarian@example.com}") String deletionNotificationRecipient) {
     this.bookRepository = bookRepository;
     this.openLibraryApiClient = openLibraryApiClient;
-    this.eventPublisher = eventPublisher;
     this.bookNotificationService = bookNotificationService;
     this.deletionNotificationRecipient = deletionNotificationRecipient;
   }
@@ -45,19 +41,24 @@ public class BookService {
       throw new BookAlreadyExistsException(request.isbn());
     }
 
+    BookMetadata metadata = openLibraryApiClient.fetchMetadataForIsbn(request.isbn())
+      .orElseThrow(() -> new BookMetadataUnavailableException(request.isbn()));
+
+    if (metadata.title() == null || metadata.author() == null) {
+      logger.warn("OpenLibrary record for ISBN {} is missing title or author: {}", request.isbn(), metadata);
+      throw new BookMetadataUnavailableException(request.isbn());
+    }
+
     Book book = new Book(
       request.isbn(),
-      request.title(),
-      request.author(),
-      request.publishedDate()
+      request.internalName(),
+      request.availabilityDate(),
+      metadata.title(),
+      metadata.author()
     );
-
-    BookMetadataResponse metadata = openLibraryApiClient.getBookByIsbn(request.isbn());
-
-    book.setThumbnailUrl(metadata.getCoverUrl());
+    book.setThumbnailUrl(metadata.thumbnailUrl());
 
     Book savedBook = bookRepository.save(book);
-    eventPublisher.publishEvent(new BookCreatedEvent(savedBook.getId(), savedBook.getIsbn(), savedBook.getTitle()));
     return savedBook.getId();
   }
 
@@ -72,9 +73,8 @@ public class BookService {
   public Optional<Book> updateBook(Long id, BookUpdateRequest request) {
     return bookRepository.findById(id)
       .map(book -> {
-        book.setTitle(request.title());
-        book.setAuthor(request.author());
-        book.setPublishedDate(request.publishedDate());
+        book.setInternalName(request.internalName());
+        book.setAvailabilityDate(request.availabilityDate());
         book.setStatus(request.status());
         return bookRepository.save(book);
       });
@@ -84,11 +84,7 @@ public class BookService {
     return bookRepository.findById(id)
       .map(book -> {
         bookRepository.delete(book);
-        try {
-          bookNotificationService.notifyDeletedBook(book.getTitle(), book.getIsbn(), deletionNotificationRecipient);
-        } catch (Exception e) {
-          logger.warn("Failed to send deletion notification email for book id={}", id, e);
-        }
+        bookNotificationService.notifyDeletedBook(book.getTitle(), book.getIsbn(), deletionNotificationRecipient);
         return true;
       })
       .orElse(false);

@@ -3,6 +3,7 @@ package pragmatech.digital.workshops.lab2.solutions;
 import java.time.LocalDate;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -25,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * OpenLibrary with WireMock and authenticates via a real Keycloak access token.
  */
 @ContextConfiguration(initializers = WireMockContextInitializer.class)
+@Disabled("Legacy pre-rewrite solution — superseded by SolutionCreateBookWireMockIT")
 class Solution1WireMockCreateBookIT extends AbstractOAuth2IntegrationTest {
 
   private static final String ISBN = "978-0132350884";

@@ -34,4 +34,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     return problemDetail;
   }
+
+  /**
+   * Handle failures to enrich a new book from OpenLibrary by returning HTTP 422
+   * Unprocessable Entity so the frontend can show a meaningful error.
+   */
+  @ExceptionHandler(BookMetadataUnavailableException.class)
+  public ProblemDetail handleBookMetadataUnavailable(BookMetadataUnavailableException ex) {
+    ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+      HttpStatus.UNPROCESSABLE_ENTITY,
+      ex.getMessage()
+    );
+
+    problemDetail.setTitle("Book Metadata Unavailable");
+    problemDetail.setType(URI.create("https://api.bookshelf.com/errors/book-metadata-unavailable"));
+    problemDetail.setProperty("isbn", ex.getIsbn());
+    problemDetail.setProperty("timestamp", Instant.now());
+
+    return problemDetail;
+  }
 }

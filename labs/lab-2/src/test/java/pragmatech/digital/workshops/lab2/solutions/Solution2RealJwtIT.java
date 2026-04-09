@@ -1,5 +1,6 @@
 package pragmatech.digital.workshops.lab2.solutions;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.TestRestTemplate;
@@ -24,6 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  *       {@code JwtAuthenticationConverter} in {@code SecurityConfig}.</li>
  * </ol>
  */
+@Disabled("Legacy pre-rewrite solution — Keycloak path; superseded by BookControllerOAuth2StubIT")
 class Solution2RealJwtIT extends AbstractOAuth2IntegrationTest {
 
   @Autowired
