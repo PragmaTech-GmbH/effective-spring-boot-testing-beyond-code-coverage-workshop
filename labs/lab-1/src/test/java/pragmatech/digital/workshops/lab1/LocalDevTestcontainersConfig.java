@@ -1,13 +1,17 @@
 package pragmatech.digital.workshops.lab1;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.DynamicPropertyRegistrar;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.MountableFile;
+import org.testcontainers.postgresql.PostgreSQLContainer;
+import pragmatech.digital.workshops.lab1.experiment.KeycloakContainer;
+import pragmatech.digital.workshops.lab1.experiment.MailpitContainer;
 
 /**
  * Local development Testcontainers configuration.
@@ -20,36 +24,45 @@ import org.testcontainers.utility.MountableFile;
 @TestConfiguration(proxyBeanMethods = false)
 public class LocalDevTestcontainersConfig {
 
-  private static final String KEYCLOAK_REALM = "test-realm";
+  private static final Logger LOG = LoggerFactory.getLogger(LocalDevTestcontainersConfig.class);
 
   @Bean
   @ServiceConnection
-  PostgreSQLContainer<?> postgres() {
-    return new PostgreSQLContainer<>("postgres:16-alpine")
-      .withDatabaseName("testdb")
-      .withUsername("test")
-      .withPassword("test")
-      .withInitScript("init-postgres.sql");
+  PostgreSQLContainer postgres() {
+    return new PostgreSQLContainer("postgres:16-alpine");
   }
 
   @Bean
-  GenericContainer<?> keycloak() {
-    return new GenericContainer<>("quay.io/keycloak/keycloak:26.0")
-      .withExposedPorts(8080)
-      .withEnv("KEYCLOAK_ADMIN", "admin")
-      .withEnv("KEYCLOAK_ADMIN_PASSWORD", "admin")
-      .withEnv("KC_HEALTH_ENABLED", "true")
-      .withCopyFileToContainer(
-        MountableFile.forClasspathResource("keycloak/test-realm.json"),
-        "/opt/keycloak/data/import/test-realm.json")
-      .withCommand("start-dev", "--import-realm")
-      .waitingFor(Wait.forHttp("/realms/" + KEYCLOAK_REALM + "/.well-known/openid-configuration").forPort(8080));
+  KeycloakContainer keycloak() {
+    return new KeycloakContainer();
   }
 
   @Bean
-  DynamicPropertyRegistrar keycloakProperties(GenericContainer<?> keycloak) {
-    return registry -> registry.add(
-      "spring.security.oauth2.resourceserver.jwt.issuer-uri",
-      () -> "http://" + keycloak.getHost() + ":" + keycloak.getMappedPort(8080) + "/realms/" + KEYCLOAK_REALM);
+  MailpitContainer mailpit() {
+    return new MailpitContainer();
+  }
+
+  @Bean
+  public ApplicationRunner notifyWebUI(MailpitContainer mailpitContainer) {
+    return args -> LOG.info("Mailpit UI is accessible through http://localhost:{}", mailpitContainer.getHttpPort());
+  }
+
+  @Bean
+  JavaMailSender javaMailSender(MailpitContainer mailpitContainer) {
+    JavaMailSenderImpl sender = new JavaMailSenderImpl();
+    sender.setHost(mailpitContainer.getHost());
+    sender.setPort(mailpitContainer.getSmtpPort());
+    return sender;
+  }
+
+  @Bean
+  DynamicPropertyRegistrar keycloakProperties(KeycloakContainer keycloak, MailpitContainer mailpitContainer) {
+    return registry -> {
+      registry.add(
+        "spring.security.oauth2.resourceserver.jwt.issuer-uri",
+        keycloak::getIssuerUri);
+      registry.add("spring.mail.host", mailpitContainer::getHost);
+      registry.add("spring.mail.port", mailpitContainer::getSmtpPort);
+    };
   }
 }

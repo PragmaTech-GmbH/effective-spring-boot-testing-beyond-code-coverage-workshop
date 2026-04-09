@@ -1,10 +1,9 @@
 spring:
-  mail:
-    host: localhost
-    port: 3025
-    username: test
-    password: test
-
-bookshelf:
-  notification:
-    from: test@library.com
+  docker:
+    compose:
+      enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8090/realms/test-realm

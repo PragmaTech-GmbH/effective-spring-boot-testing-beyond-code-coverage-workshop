@@ -1,4 +1,4 @@
-package pragmatech.digital.workshops.lab1.client;
+package pragmatech.digital.workshops.lab2.client;
 
 import java.util.Optional;
 
