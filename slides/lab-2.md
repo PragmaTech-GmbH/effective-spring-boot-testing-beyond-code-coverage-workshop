@@ -29,6 +29,18 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ---
 
+
+## Recap of Lab 1
+
+- `@SpringBootTest` needs **real** infra to be meaningful
+- Testcontainers + `@ServiceConnection` removes 90% of the boilerplate
+- Add Mailpit for SMTP, Keycloak for OAuth2
+- Same containers power local dev *and* tests
+
+**Next:** WireMock + OAuth2 — testing the HTTP boundary.
+
+---
+
 # Lab 2
 
 ## Two Modes of `@SpringBootTest` — WireMock & Security

@@ -3,7 +3,7 @@ marp: true
 theme: pragmatech
 ---
 
-![bg](./assets/digdir-cover.jpg)
+![bg](./assets/barcelona-spring-io.jpg)
 
 ---
 
@@ -12,64 +12,132 @@ theme: pragmatech
 
 # Effective Spring Boot Testing Beyond Code Coverage
 
-## Lab 1 — Reliable Integration Tests
+
+## Full-Day Workshop
+
+_Spring I/O Conference Workshop 13.04.2026_
 
 Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil](https://x.com/rieckpil)
 
----
+--- 
 
-<!-- header: 'Effective Spring Boot Testing Beyond Code Coverage' -->
+<!-- header: 'Effective Spring Boot Testing Beyond Code Coverage @ Spring I/0 2026' -->
 <!-- footer: '![w:32 h:32](assets/generated/logo.webp)' -->
 
-# Workshop Goals
+# Organization
 
-- Engineering **confidence** in our development workflow
-- Move beyond *coverage* — write tests that catch real bugs
-- Tame slow, flaky integration tests
-- Tooling: Testcontainers, WireMock, PIT, ArchUnit
+- Hotel WiFi: `Spring I/O` Password: `bootifulBCN`
 
----
+- Workshop lab requirements
+  - Hardware: A personal or company laptop.
+  - Development Environment: A Java IDE of your choice with Java 21
+  - Access to a functional Docker Engine compatible with Testcontainers.
+  - Fallback Access: A personal GitHub account for GitHub Codespaces if local setup fails.
 
-## Agenda — One Day, Four Labs
-
-1. **Reliable Integration Tests** — Testcontainers, infra deps, Mailpit
-2. **Two Modes of `@SpringBootTest`** — WireMock + OAuth2/JWT
-3. **Fast & Reliable Builds** — Context caching + parallel execution
-4. **Testing Tips 101** — Mutation testing, ArchUnit, tricks & Q&A
 
 ---
 
-## Our Sample Application — Library Management System
 
+# Workshop Timeline
+
+- 9:00 - 10:45: **Lab 1 - Writing Reliable Spring Boot Integration Tests Part I** 
+- 10:45 - 11:05: **Coffee Break** (20 minutes)
+- 11:05 - 13:00: **Lab 1 - Writing Reliable Spring Boot Integration Tests Part 2**
+- 13:00 - 14:00 **Lunch** (60 minutes)
+- 14:00 - 15:30: **Lab 3 - Accelerating Spring Boot Build Times**
+- 15:30 - 15:50 **Coffee Break** (20 minutes)
+- 15:50 - 17:00: **Lab 4 - Pitfalls & Best Practices, Time for Q&A**
+
+---
+
+
+![bg right:33% h:750](assets/location.png)
+
+## Workshop Instructor: Philip
+
+- Self-employed IT consultant from Herzogenaurach, Germany (Bavaria) 🍻
+- BBlogging & content creation with a focus on testing Java and specifically Spring Boot applications 🍃
+- Founder of PragmaTech GmbH - Enabling Developers to Frequently Deliver Software with More Confidence 🚤
+- Enjoys writing tests (sometimes even more than production code) 🧪
+
+---
+
+## Getting to Know Each Other
+
+- What's your name and where are you from?
+- What's your role in your team?
+- What's the biggest Spring Boot testing challenge in your team/organization?
+- What's your expectation for this workshop?
+
+---
+
+![bg right:33% h:750](assets/best-practices.jpg)
+
+# Workshop Goals Revisited
+
+
+- Confidently use Testcontainers for database and infrastructure testing
+- Understand and optimize Spring context caching behavior
+- Apply proven strategies for testing external service integrations
+- Use mutation testing to identify weak spots in your test suite
+- Reduce test execution time without sacrificing quality
+
+---
+
+# Move beyond *code coverage* - write tests that give you confidence to ship frequently to production.
+
+---
+
+# Workshop Technical Agenda Revisited
+
+- Test slices and context management in Spring Boot
+- Testcontainers: setup, configuration, and best practices 
+- Context caching strategies for faster test suites
+- Testing external services: WireMock, contract testing, and resilience verification
+- Mutation testing with PIT: measuring real test effectiveness
+- Performance optimization and test organization patterns
+
+---
+
+## Our Sample Application - Bookshelf
+
+- A sample Library Management System
 - Spring Boot 4 / Java 21
-- CRUD for **books** (Postgres + Flyway + JPA)
-- **OAuth2 Resource Server** (Keycloak in prod, JWT in tests)
-- Calls **OpenLibrary** to enrich book metadata on creation
+- CRUD API for **books** (Postgres + Flyway + JPA)
+- **OAuth2 Resource Server** (Keycloak as an identity provider)
+- Simple vanilla TypeScript frontend
+- Calls the **OpenLibrary** REST API to enrich book metadata on creation
 - **Sends an email** via Spring Mail when a book is **deleted**
-- Publishes domain events on creation
-
-![w:720](assets/lab-1-sample-application.png)
 
 ---
 
-## Two Modes of Testing in Spring Boot
-
-|                  | No context           | With context              |
-|------------------|----------------------|----------------------------|
-| **Speed**        | Fast (ms)            | Slow (seconds)             |
-| **Isolation**    | Pure unit            | Beans + config wired       |
-| **Confidence**   | Logic only           | Wiring, JPA, security…     |
-| **Tools**        | JUnit + Mockito      | `@SpringBootTest`, slices  |
-
-We focus on **integration tests** for the rest of the day.
+![w:720 center](assets/lab-1-sample-application.png)
 
 ---
 
-# Lab 1
+## Application Setup & Demo
 
-## Reliable Integration Tests with Testcontainers
+- Go to menti.com and enter code `7854 8520`
+- Clone the repository locally
+- Open the project at the root inside your IDE
+- Each lab has a dedicated folder within `labs/`
+- The code that I show during the labs is in the `experiment` package, your tasks in `exercises` and solutions in `solutions`
+- Fallback: Use GitHub Codespaces if you have trouble with local setup
 
 ---
+
+## Quick Spring Boot Testing Recap
+
+
+
+
+---
+
+
+
+
+---
+
 
 ## The Problem: A Full `@SpringBootTest` Won't Even Start
 
@@ -183,12 +251,3 @@ See `labs/lab-1/README.md`.
 3. Boot the app locally against the same containers
 
 ---
-
-## Recap
-
-- `@SpringBootTest` needs **real** infra to be meaningful
-- Testcontainers + `@ServiceConnection` removes 90% of the boilerplate
-- Add Mailpit for SMTP, Keycloak for OAuth2
-- Same containers power local dev *and* tests
-
-**Next:** WireMock + OAuth2 — testing the HTTP boundary.
