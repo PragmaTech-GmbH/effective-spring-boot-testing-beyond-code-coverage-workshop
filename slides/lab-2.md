@@ -74,6 +74,124 @@ In tests we want to:
 
 ---
 
+
+## Challenge 1: HTTP Communication during Tests
+
+```java
+@Bean
+public CommandLineRunner initializeBookMetadata() {
+  return args -> {
+    // Fires real HTTP to https://openlibrary.org on every context start
+    openLibraryApiClient.getBookByIsbn("9780132350884");
+    openLibraryApiClient.getBookByIsbn("9780201633610");
+    openLibraryApiClient.getBookByIsbn("9780134757599");
+  };
+}
+```
+
+- Context fails to start when the remote API is **unreachable** (CI, airplane mode)
+- Tests become **non-deterministic** - dependent on external state and sample data
+- Solution: stub the HTTP calls **before** the Spring context finishes starting
+
+---
+
+## HTTP Communication During Tests
+
+- Unreliable when performing real HTTP calls during tests
+- Sample data - what if the remote API changes its response?
+- Authentication - real API keys in CI pipelines?
+- Cleanup - data written to external systems
+- No airplane-mode testing possible
+- Solution: **stub the HTTP responses** for the remote system
+
+---
+
+## Why Offline / Airplane Mode Matters
+
+- Tests should pass **anywhere**: laptop, CI/CD pipeline, air-gapped environments
+- Real network calls make tests:
+  - **Slow** - latency accumulates across a large suite
+  - **Flaky** - rate limits, API downtime, responses that change over time
+  - **Insecure** - credentials leak into logs, data written to external systems
+- **Rule:** no test should require an outbound network connection
+
+---
+
+![w:1200 h:700](assets/wiremock-usage.svg)
+
+---
+
+## Introducing WireMock
+
+- In-memory (or Docker container) Jetty to stub HTTP responses to simulate a remote HTTP API
+- Simulate failures, slow responses, etc.
+- Alternatives: MockServer, MockWebServer, etc.
+
+```java
+WireMockServer wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
+wireMockServer.start();
+
+// Feels a bit like Mockito, but for HTTP stubbing
+wireMockServer.stubFor(
+  WireMock.get(urlPathEqualTo("/api/books"))
+    .withQueryParam("bibkeys", WireMock.equalTo("ISBN:" + isbn))
+    .willReturn(
+      aResponse()
+        .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .withBodyFile(isbn + "-success.json")))
+);
+```
+
+---
+
+## WireMock: Advanced Features
+
+**Stateful scenarios** - simulate retry / eventual consistency
+
+```java
+wireMockServer.stubFor(get("/isbn/123")
+  .inScenario("retry").whenScenarioStateIs(STARTED)
+  .willReturn(serverError())
+  .willSetStateTo("recovered"));
+
+wireMockServer.stubFor(get("/isbn/123")
+  .inScenario("retry").whenScenarioStateIs("recovered")
+  .willReturn(ok().withBodyFile("123-success.json")));
+```
+
+---
+
+**Response templating** - inject request values into the response body
+
+```java
+wireMockServer.stubFor(get(urlPathMatching("/users/.*"))
+  .willReturn(aResponse()
+    .withHeader("Content-Type", "application/json")
+    .withBody(
+        {
+          "id": "{{request.pathSegments.[1]}}",
+          "userAgent": "{{request.headers.User-Agent}}",
+          "timestamp": "{{now format='yyyy-MM-dd'}}"
+        }
+       )
+    .withTransformers("response-template")));
+```
+
+---
+
+**Proxying & Recording** - record real API responses once, replay offline
+
+```java
+wireMockServer.startRecording(RecordSpec.forTarget("https://openlibrary.org/")
+    .makeStubsPersistent(true)
+    .build());
+
+// ... make real requests ...
+
+wireMockServer.stopRecording();
+```
+
+
 ## Effective WireMock Usage
 
 ```java
@@ -106,6 +224,81 @@ wm.verify(getRequestedFor(urlPathEqualTo("/api/books/9780134685991")));
 ```
 
 ---
+
+
+## Using `@SpringBootTest` to Start the Entire Context
+
+To start the Servlet Container or not?
+
+We can control the web environment of our context setup with `@SpringBootTest`:
+
+```java
+@SpringBootTest                                                // MOCK (default)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)   // real HTTP, random port
+@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)  // real HTTP, static port
+@SpringBootTest(webEnvironment = WebEnvironment.NONE)          // no web layer at all
+```
+
+
+---
+
+
+| Mode | Web server                                    | Real HTTP | Test client                                             |
+|---|-----------------------------------------------|---|---------------------------------------------------------|
+| `MOCK` *(default)* | Mock servlet environment                      | ❌ | `MockMvc`                                               |
+| `NONE` | No servlet                                    | ❌ | none (service/batch tests)                              |
+| `RANDOM_PORT` | Real embedded servlet container (e.g. Tomcat) | ✅ | `WebTestClient` / `RestTestClient` / `TestRestTemplate` |
+| `DEFINED_PORT` | Real embedded container (e.g. Tomcat)                          | ✅ | `WebTestClient` / `RestTestClient`/ `TestRestTemplate`  |
+
+Two variants matter for nearly every integration test: **`MOCK`** and **`RANDOM_PORT`**.
+
+
+---
+
+## Variant 1: `MOCK` - No Real Servlet Container, No Real HTTP
+
+- The integration tests starts the entire `ApplicationContext` but **does not start a real HTTP server**
+- Instead, it uses `MockMvc` to simulate HTTP requests in a mocked servlet environment, similar to `@WebMvcTest` but with the full context loaded.
+
+```java
+@SpringBootTest
+@AutoConfigureMockMvc
+class SampleIT {
+
+  @Autowired
+  private MockMvc mockMvc;
+  
+  @Test
+  void sampleTest() {
+    // test against your entire application, using a mocked servlet environment
+  }
+}
+```
+
+---
+
+## Variant 2: `RANDOM_PORT` - Entire Context with Servlet Container
+
+```java
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureWebTestClient // choose one
+@AutoConfigureTestRestTemplate // choose one
+@AutoConfigureRestTestClient // choose one
+class SampleIT {
+
+  @LocalServerPort
+  private int port;
+  
+  @Autowired
+  private WebTestClient webTestClient; // <- auto-configured for the random port
+
+  @Test
+  void sampleTest() {
+    this.webTestClient.get().uri("/api/books").exchangeSuccessfully();
+  }
+}
+```
+
 
 ## WireMock — Advanced Features
 

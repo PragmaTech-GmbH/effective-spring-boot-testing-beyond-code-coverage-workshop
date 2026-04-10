@@ -126,6 +126,8 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ---
 
+![bg right:33%](assets/101.jpg)
+
 ## Quick Spring Boot Testing Recap
 
 
@@ -133,7 +135,35 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ---
 
+## Spring Boot Test Types
 
+![center h:500 w:1000](assets/decision-tree-testing-en.png)
+
+
+
+![bg right:33%](assets/slice.jpg)
+
+## Sliced Testing with Spring Boot
+
+Verify specific layers of your Spring Boot application with a minimal `ApplicationContext`.
+
+---
+
+![center h:600 w:700](assets/typical-context.png)
+
+---
+
+![center h:600 w:700](assets/typical-context-colored.png)
+
+---
+
+
+![center h:500 w:600](assets/typical-context-sliced.png)
+
+---
+
+
+![](assets/typical-context-webmvctest-example.png)
 
 
 ---
@@ -158,37 +188,110 @@ Mocking all of these is fragile and unrealistic.
 
 ---
 
-## Enter Testcontainers
+## Challenges when Starting the Entire `ApplicationContext`
+
+- **Problem #1**: How to ensure surrounding infrastructure (e.g. database, queues, etc.) is present?
+- **Problem #2**: How to handle HTTP communication from our application to remote services?
+- **Problem #3**: How to keep our build time at a reasonable duration?
+
+---
+
+
+## Solving Problem #1 for our database: In-Memory vs. Real Database
+
+- By default, Spring Boot tries to autoconfigure an in-memory relational database (H2 or Derby)
+- In-memory database pros:
+  - Easy to use & fast
+  - Less overhead
+- In-memory database cons:
+  - Mismatch with the infrastructure setup in production
+  - Despite having compatibility modes, we can't fully test proprietary database features
+
+---
+
+![bg right:33%](assets/generated/containers.jpg)
+
+## Testcontainers to the Rescue!
 
 > *"Throwaway, Docker-backed instances of real services for integration tests."*
 
-- Real Postgres, real SMTP, real Keycloak — same versions as prod
-- Lifecycle tied to the test JVM
-- Spring Boot first-class integration via `@ServiceConnection`
+```java
+static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
+```
+
+- Java library that manages **Docker containers** from inside Java code
+- Container lifecycle is tied to the test: starts before, stops after
+- `static` containers are shared across all tests in the class (faster)
+- [Modules](https://testcontainers.com/modules/) for PostgreSQL, MySQL, Redis, Kafka, LocalStack, and more
+- Eliminates the "works on my machine" database problem
 
 ---
 
 ## Testcontainers 101
 
-```java
-@Container
-@ServiceConnection
-static PostgreSQLContainer<?> postgres =
-    new PostgreSQLContainer<>("postgres:16-alpine");
+- Running infrastructure components (databases, message brokers, etc.) in Docker containers for our tests becomes a breeze with [Testcontainers](https://testcontainers.com/)
+- Testcontainers abstracts the rather low-level Docker Java API and provides a fluent, Java-friendly API to define and manage containers in our tests
+- Whatever you can containerize, you can test with Testcontainers
+
+Testcontainers maps the container's internal ports to random ephemeral ports on the host machine to avoid conflicts.
+
+You can see the mapped ports with `docker ps`:
+
+```shell {3}
+$ docker ps
+CONTAINER ID   IMAGE                        COMMAND                  CREATED          STATUS         PORTS                                           NAMES
+a958ee2887c6   postgres:16-alpine           "docker-entrypoint.s…"   10 seconds ago   Up 9 seconds   0.0.0.0:32776->5432/tcp, [::]:32776->5432/tcp   affectionate_cannon
+ad0f804068dc   testcontainers/ryuk:0.12.0   "/bin/ryuk"              10 seconds ago   Up 9 seconds   0.0.0.0:32775->8080/tcp, [::]:32775->8080/tcp   testcontainers-ryuk-1f9f76a6-46d4-4e19-85c1-e8364da12804
 ```
 
-`@ServiceConnection` (Spring Boot 3.1+) wires `spring.datasource.*` automatically — no `@DynamicPropertySource` boilerplate.
+---
+
+## Testcontainers & Spring Boot Integration
+
+```java {2,5,6}
+@DataJpaTest
+@Testcontainers
+class BookRepositoryTest {
+
+  @Container
+  @ServiceConnection
+  static PostgreSQLContainer<?> postgres =
+      new PostgreSQLContainer<>("postgres:16-alpine");
+
+}
+```
+
+- `@Testcontainers` hooks the container into the JUnit 5 extension lifecycle
+- `@ServiceConnection` reads host/port from the running container and **auto-configures** Spring's datasource - no manual URL wiring needed
 
 ---
+
+## Alternative Connection Configuration
+
+Alternatively, we can use `@DynamicPropertySource` to programmatically set properties from the container:
+
+```java
+static PostgreSQLContainer<?> database =
+  new PostgreSQLContainer<>("postgres:17.2")
+    .withDatabaseName("test")
+    .withUsername("duke")
+    .withPassword("s3cret");
+
+@DynamicPropertySource
+static void properties(DynamicPropertyRegistry registry) {
+  registry.add("spring.datasource.url", database::getJdbcUrl);
+  registry.add("spring.datasource.password", database::getPassword);
+  registry.add("spring.datasource.username", database::getUsername);
+}
+```
+
+---
+
 
 ## Dynamic Properties — When You Still Need Them
 
 ```java
-@DynamicPropertySource
-static void mailProps(DynamicPropertyRegistry registry) {
-  registry.add("spring.mail.host", mailpit::getHost);
-  registry.add("spring.mail.port", () -> mailpit.getMappedPort(1025));
-}
+
 ```
 
 Use this for containers without a `@ServiceConnection` factory (yet).
@@ -206,23 +309,29 @@ static GenericContainer<?> mailpit =
 ```
 
 - Port `1025` — SMTP receiver
-- Port `8025` — HTTP API to **assert** received emails
+- Port `8025` — HTTP UI Inbox of received emails
 
----
-
-## End-to-End: Asserting the Deletion Email
-
-```java
-mockMvc.perform(delete("/api/books/{id}", id).with(jwt()))
-       .andExpect(status().isNoContent());
-
-await().untilAsserted(() ->
-  assertThat(mailpitClient.messages())
-    .anySatisfy(m -> assertThat(m.subject())
-      .startsWith("Book removed from library")));
+```
+@DynamicPropertySource
+static void mailProps(DynamicPropertyRegistry registry) {
+  registry.add("spring.mail.host", mailpit::getHost);
+  registry.add("spring.mail.port", () -> mailpit.getMappedPort(1025));
+}
 ```
 
 ---
+
+## What About Keycloak?
+
+- As our application acts as an OAuth2 Resource Server, we need a running Keycloak instance to validate JWTs
+- During application startup and then frequently during runtime, Spring will try to fetch the OpenID configuration from Keycloak's well-known endpoint (`/.well-known/openid-configuration`) to discover the issuer's public keys and other metadata
+- When writing integration tests, we need a valid JWT that signature can be validated against
+
+![center](assets/oauth2-resourceserver-wiremock.png)
+
+
+---
+
 
 ## Container Lifecycle Strategies
 
@@ -243,11 +352,10 @@ We'll revisit performance trade-offs in **Lab 3**.
 ---
 
 # Time For Some Exercises
+## Lab 1
 
-See `labs/lab-1/README.md`.
-
-1. Make `Lab1ApplicationIT` start with Postgres + Mailpit + Keycloak
-2. Verify the deletion email arrives in Mailpit
-3. Boot the app locally against the same containers
-
----
+- Set up the [repository](https://github.com/PragmaTech-GmbH/effective-spring-boot-testing-beyond-code-coverage-workshop) locally
+- Work locally or use GitHub Codespaces (120 hours/month free)
+- Fore Codespaces, pick at least 4-Cores (16 GB RAM) and region `Europe West`
+- Navigate to the `labs/lab-1` folder in the repository and complete the tasks as described in the `README` file of that folder
+- Time boxed until the end of the coffee break (11:05 AM)
