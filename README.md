@@ -1,50 +1,64 @@
-# Effective Spring Boot Testing Beyond Code Coverage
+# Testing Spring Boot Applications Demystified Workshop
 
-Goal:  Engineering Confidence in Our Development Workflow
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/PragmaTech-GmbH/digdir-workshop)
 
-Take your Spring Boot testing skills beyond the basics. This hands-on workshop covers advanced techniques for writing reliable, fast, and maintainable tests. You'll learn how to leverage Testcontainers for realistic database and service testing, optimize test execution through strategic context caching, and build robust tests for external service dependencies. We'll also explore mutation testing to verify your tests actually catch bugs - not just achieve code coverage. Walk away with practical patterns you can apply to your projects immediately.
+A one-day, advanced workshop on writing **fast, reliable, high-signal** tests for Spring Boot applications. Assumes you already know JUnit 5, Mockito, and the basics of `@SpringBootTest`.
 
-Agenda
+Proudly presented by [PragmaTech GmbH](https://pragmatech.digital/).
 
-* Test slices and context management in Spring Boot
-* Testcontainers: setup, configuration, and best practices
-* Context caching strategies for faster test suites
-* Testing external services: WireMock, contract testing, and resilience verification
-* Mutation testing with PIT: measuring real test effectiveness
-* Performance optimization and test organization patterns
+## Workshop Overview
 
-Goals
+Take your Spring Boot testing skills beyond the basics: realistic infrastructure with Testcontainers, the HTTP boundary with WireMock, context caching and parallel execution for speed, and mutation testing to verify your tests actually catch bugs.
 
-* Confidently use Testcontainers for database and infrastructure testing
-* Understand and optimize Spring context caching behavior
-* Apply proven strategies for testing external service integrations
-* Use mutation testing to identify weak spots in your test suite
-* Reduce test execution time without sacrificing quality
+All four labs share **one** sample application — a Library Management System (book CRUD, OAuth2 Resource Server, OpenLibrary metadata enrichment, and an email-on-delete notification via Spring Mail).
 
-Target Audience
+### Agenda — One Day, Four Labs
 
-Java developers with basic Spring Boot testing experience who want to write more comprehensive and effective tests. Familiarity with JUnit 5 and Spring Boot fundamentals is expected.
+| Time          | Session                                                                                |
+|---------------|----------------------------------------------------------------------------------------|
+| 09:00 - 10:30 | [Lab 1](labs/lab-1) — Reliable Integration Tests with Testcontainers                   |
+| 10:30 - 11:00 | Coffee Break                                                                           |
+| 11:00 - 12:30 | [Lab 2](labs/lab-2) — Two Modes of `@SpringBootTest`: WireMock + OAuth2/JWT            |
+| 12:30 - 13:30 | Lunch                                                                                  |
+| 13:30 - 15:00 | [Lab 3](labs/lab-3) — Fast & Reliable Builds: Context Caching + Parallel Execution     |
+| 15:00 - 15:30 | Coffee Break                                                                           |
+| 15:30 - 17:00 | [Lab 4](labs/lab-4) — Testing Tips 101: Mutation Testing, ArchUnit & Q&A               |
 
+## Lab Structure
 
-## Lab Overview
+Each lab in `labs/` (`lab-1` through `lab-4`) includes:
 
-### Lab 1: Reliable Integration Tests:
+- Exercise files with instructions and TODO comments
+- Solution files that show the complete implementation
+- Supporting code and configurations
 
-- Testcontainers usage
-- WireMock
+## Prerequisites
 
+- Java 21 (or later)
+- Maven 3.9+ (wrapper included)
+- Docker (for Testcontainers)
+- Your favorite IDE (IntelliJ IDEA, Eclipse, VS Code, etc.)
 
-### Lab 2: Fast Builds:
+## Getting Started
 
-- Context Caching
+1. Clone this repository
+2. Import the projects into your IDE of choice.
+3. Run all builds with:
 
+```bash
+./mvnw verify
+```
 
-### Lab 3: Reliable Tests with PIT:
+## Slides
 
-- Setup and example
+You'll find the slides for each lab in the `slides/` directory. They are organized by lab and can be used as a reference during the workshop.
 
+## Additional Resources
 
-### Lab 4: Testing Tips 101:
+- [Spring Boot Testing Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing)
+- [Spring Test Documentation](https://docs.spring.io/spring-framework/reference/testing.html)
+- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+- [Mockito Documentation](https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html)
+- [Testcontainers Documentation](https://www.testcontainers.org/)
+- [WireMock Documentation](http://wiremock.org/docs/)
 
-- Tips & Tricks
-- Q&A

@@ -1,0 +1,531 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "em-zone",
+      "type": "rectangle",
+      "x": 240,
+      "y": 40,
+      "width": 700,
+      "height": 460,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "opacity": 25,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7fqazeh575g3j",
+      "type": "text",
+      "x": 180,
+      "y": -80,
+      "width": 780,
+      "strokeColor": "#1e1e1e",
+      "text": "Hibernate Flush & Write-Behind Cache",
+      "fontSize": 28,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7gxikkrxf79bl",
+      "type": "text",
+      "x": 180,
+      "y": -35,
+      "width": 780,
+      "strokeColor": "#868e96",
+      "text": "Changes are buffered in the Action Queue — SQL only reaches the DB on flush()",
+      "fontSize": 16,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7g9dfuv54xauc",
+      "type": "text",
+      "x": 450,
+      "y": 50,
+      "width": 260,
+      "strokeColor": "#2f9e44",
+      "text": "Persistence Context",
+      "fontSize": 20,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "java-app",
+      "type": "rectangle",
+      "x": 0,
+      "y": 170,
+      "width": 200,
+      "height": 90,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "Java Application"
+      },
+      "fontSize": 16,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "l1cache",
+      "type": "rectangle",
+      "x": 260,
+      "y": 90,
+      "width": 660,
+      "height": 130,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "First Level Cache\nEntity Snapshots"
+      },
+      "fontSize": 18,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "action-queue",
+      "type": "rectangle",
+      "x": 260,
+      "y": 280,
+      "width": 660,
+      "height": 190,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "Action Queue\nINSERT · UPDATE · DELETE\n(not yet sent to DB)"
+      },
+      "fontSize": 18,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "db",
+      "type": "rectangle",
+      "x": 1020,
+      "y": 200,
+      "width": 180,
+      "height": 110,
+      "backgroundColor": "#99e9f2",
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "Database"
+      },
+      "fontSize": 18,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7g3onqus84gvk",
+      "type": "arrow",
+      "x": 207.94069110956326,
+      "y": 201.78277251719635,
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "entity operations"
+      },
+      "fontSize": 14,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          44.11861778087348,
+          -5.40227972827023
+        ]
+      ],
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "java-app",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "l1cache",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mm09lv7gkv5d4w85ry",
+      "type": "arrow",
+      "x": 590,
+      "y": 228,
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "dirty checking"
+      },
+      "fontSize": 14,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          44
+        ]
+      ],
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "l1cache",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "action-queue",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mm09lv7gr0yya3fsqnp",
+      "type": "arrow",
+      "x": 927.795129565557,
+      "y": 297.04727779256376,
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "flush()"
+      },
+      "fontSize": 14,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          84.40974086888605,
+          -19.47917096974294
+        ]
+      ],
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "action-queue",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "db",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "flush-zone",
+      "type": "rectangle",
+      "x": 0,
+      "y": 560,
+      "width": 1040,
+      "height": 180,
+      "backgroundColor": "#e9ecef",
+      "strokeColor": "#868e96",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7g45m6yffz49h",
+      "type": "text",
+      "x": 20,
+      "y": 570,
+      "width": 640,
+      "strokeColor": "#1e1e1e",
+      "text": "Flush Modes — When does Hibernate send SQL to the DB?",
+      "fontSize": 16,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "flush-auto",
+      "type": "rectangle",
+      "x": 20,
+      "y": 600,
+      "width": 300,
+      "height": 120,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "AUTO\nBefore queries\n& on commit()"
+      },
+      "fontSize": 16,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "flush-commit",
+      "type": "rectangle",
+      "x": 340,
+      "y": 600,
+      "width": 300,
+      "height": 120,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "COMMIT\nOn commit() only"
+      },
+      "fontSize": 16,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "flush-manual",
+      "type": "rectangle",
+      "x": 660,
+      "y": 600,
+      "width": 300,
+      "height": 120,
+      "backgroundColor": "#ffc9c9",
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "label": {
+        "text": "MANUAL\nexplicit flush() call"
+      },
+      "fontSize": 16,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7gmvfl4uivwuh",
+      "type": "text",
+      "x": 0,
+      "y": 780,
+      "width": 560,
+      "strokeColor": "#1e1e1e",
+      "text": "Transaction Timeline (write-behind in action):",
+      "fontSize": 16,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7gvsjha4apkx9",
+      "type": "line",
+      "x": 60,
+      "y": 840,
+      "width": 920,
+      "height": 0,
+      "strokeColor": "#1e1e1e",
+      "strokeWidth": 3,
+      "roughness": 1,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "dot-begin",
+      "type": "ellipse",
+      "x": 52,
+      "y": 832,
+      "width": 16,
+      "height": 16,
+      "backgroundColor": "#1e1e1e",
+      "strokeColor": "#1e1e1e",
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "dot-persist",
+      "type": "ellipse",
+      "x": 242,
+      "y": 832,
+      "width": 16,
+      "height": 16,
+      "backgroundColor": "#e8590c",
+      "strokeColor": "#e8590c",
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "dot-modify",
+      "type": "ellipse",
+      "x": 482,
+      "y": 832,
+      "width": 16,
+      "height": 16,
+      "backgroundColor": "#e8590c",
+      "strokeColor": "#e8590c",
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "dot-flush",
+      "type": "ellipse",
+      "x": 722,
+      "y": 832,
+      "width": 16,
+      "height": 16,
+      "backgroundColor": "#9c36b5",
+      "strokeColor": "#9c36b5",
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "dot-commit",
+      "type": "ellipse",
+      "x": 972,
+      "y": 832,
+      "width": 16,
+      "height": 16,
+      "backgroundColor": "#2f9e44",
+      "strokeColor": "#2f9e44",
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7gwkw36g5qqyo",
+      "type": "text",
+      "x": 36,
+      "y": 858,
+      "width": 60,
+      "strokeColor": "#1e1e1e",
+      "text": "begin",
+      "fontSize": 14,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7gypq8ydbazsq",
+      "type": "text",
+      "x": 198,
+      "y": 858,
+      "width": 130,
+      "strokeColor": "#e8590c",
+      "text": "persist(book)",
+      "fontSize": 14,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7glbzwpiul4a",
+      "type": "text",
+      "x": 420,
+      "y": 858,
+      "width": 180,
+      "strokeColor": "#e8590c",
+      "text": "book.setTitle(…)",
+      "fontSize": 14,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7gp6qikesty2",
+      "type": "text",
+      "x": 660,
+      "y": 858,
+      "width": 160,
+      "strokeColor": "#9c36b5",
+      "text": "query / flush()",
+      "fontSize": 14,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7g94gwm0s6hgg",
+      "type": "text",
+      "x": 936,
+      "y": 858,
+      "width": 120,
+      "strokeColor": "#2f9e44",
+      "text": "commit()",
+      "fontSize": 14,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7g1z3qxlk0r2k",
+      "type": "text",
+      "x": 218,
+      "y": 808,
+      "width": 110,
+      "strokeColor": "#9c36b5",
+      "text": "↓ queued",
+      "fontSize": 13,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7g113i30jsfz5",
+      "type": "text",
+      "x": 458,
+      "y": 808,
+      "width": 110,
+      "strokeColor": "#9c36b5",
+      "text": "↓ queued",
+      "fontSize": 13,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    },
+    {
+      "id": "mm09lv7ghee8icod6v6",
+      "type": "text",
+      "x": 690,
+      "y": 808,
+      "width": 140,
+      "strokeColor": "#0c8599",
+      "text": "↓ SQL sent!",
+      "fontSize": 13,
+      "createdAt": "2026-02-24T07:09:18.270Z",
+      "updatedAt": "2026-02-24T07:09:18.270Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}

@@ -1,0 +1,394 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "title2",
+      "type": "text",
+      "x": 80,
+      "y": 20,
+      "width": 700,
+      "height": 30,
+      "strokeColor": "#1e1e1e",
+      "text": "@SpringBootTest (RANDOM_PORT) — Real Embedded Server, Two Threads",
+      "fontSize": 20,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "test-lane",
+      "type": "rectangle",
+      "x": 40,
+      "y": 60,
+      "width": 300,
+      "height": 460,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "opacity": 30,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "test-lane-label",
+      "type": "text",
+      "x": 100,
+      "y": 72,
+      "width": 180,
+      "height": 24,
+      "strokeColor": "#1971c2",
+      "text": "Test Thread",
+      "fontSize": 16,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "server-lane",
+      "type": "rectangle",
+      "x": 500,
+      "y": 60,
+      "width": 300,
+      "height": 460,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "opacity": 30,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "server-lane-label",
+      "type": "text",
+      "x": 540,
+      "y": 72,
+      "width": 220,
+      "height": 24,
+      "strokeColor": "#9c36b5",
+      "text": "Tomcat Worker Thread",
+      "fontSize": 16,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "box-webclient",
+      "type": "rectangle",
+      "x": 80,
+      "y": 110,
+      "width": 220,
+      "height": 60,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "label": {
+        "text": "WebTestClient\n.post(\"/api/books\")"
+      },
+      "fontSize": 15,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "box-dispatcher2",
+      "type": "rectangle",
+      "x": 540,
+      "y": 110,
+      "width": 220,
+      "height": 60,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "label": {
+        "text": "DispatcherServlet\n(Tomcat)"
+      },
+      "fontSize": 15,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "box-controller2",
+      "type": "rectangle",
+      "x": 540,
+      "y": 230,
+      "width": 220,
+      "height": 60,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "label": {
+        "text": "Controller → Service"
+      },
+      "fontSize": 15,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "box-repo2",
+      "type": "rectangle",
+      "x": 540,
+      "y": 350,
+      "width": 220,
+      "height": 60,
+      "backgroundColor": "#eebefa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "label": {
+        "text": "Repository"
+      },
+      "fontSize": 15,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "box-commit",
+      "type": "rectangle",
+      "x": 540,
+      "y": 460,
+      "width": 220,
+      "height": 50,
+      "backgroundColor": "#ffc9c9",
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "label": {
+        "text": "DB commit ← happens here ❌"
+      },
+      "fontSize": 14,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "arrow-request",
+      "type": "arrow",
+      "x": 308,
+      "y": 140,
+      "width": 240,
+      "height": 0,
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "label": {
+        "text": "Real HTTP\nTCP loopback :PORT"
+      },
+      "fontSize": 13,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          224,
+          0
+        ]
+      ],
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "box-webclient",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "box-dispatcher2",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "arrow-dispatcher-ctrl2",
+      "type": "arrow",
+      "x": 650,
+      "y": 178,
+      "width": 0,
+      "height": 60,
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          44
+        ]
+      ],
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "box-dispatcher2",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "box-controller2",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "arrow-ctrl-repo2",
+      "type": "arrow",
+      "x": 650,
+      "y": 298,
+      "width": 0,
+      "height": 60,
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          44
+        ]
+      ],
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "box-controller2",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "box-repo2",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "arrow-repo-commit",
+      "type": "arrow",
+      "x": 650,
+      "y": 418,
+      "width": 0,
+      "height": 50,
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          34
+        ]
+      ],
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "box-repo2",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "box-commit",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "box-response",
+      "type": "rectangle",
+      "x": 80,
+      "y": 350,
+      "width": 220,
+      "height": 60,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "label": {
+        "text": "Response received\n(after DB commit)"
+      },
+      "fontSize": 15,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "arrow-response",
+      "type": "arrow",
+      "x": 532.6767966127006,
+      "y": 458.2197035746382,
+      "width": -240,
+      "height": 0,
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "label": {
+        "text": "response"
+      },
+      "fontSize": 13,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -224.87740274921072,
+          -51.33071149710241
+        ]
+      ],
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "box-commit",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "box-response",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "txn-note",
+      "type": "rectangle",
+      "x": 40,
+      "y": 460,
+      "width": 300,
+      "height": 60,
+      "backgroundColor": "#ffc9c9",
+      "strokeColor": "#e03131",
+      "strokeWidth": 2,
+      "opacity": 80,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    },
+    {
+      "id": "txn-note-text",
+      "type": "text",
+      "x": 55,
+      "y": 473,
+      "width": 270,
+      "height": 36,
+      "strokeColor": "#e03131",
+      "text": "@Transactional on test → different thread\n→ NO effect on server side ❌",
+      "fontSize": 13,
+      "createdAt": "2026-02-28T15:16:34.405Z",
+      "updatedAt": "2026-02-28T15:16:34.405Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}
