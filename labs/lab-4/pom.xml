@@ -184,7 +184,7 @@
         <version>1.19.1</version>
         <dependencies>
           <!--
-            REQUIRED for JUnit 5 support. Without this dependency, PIT
+            REQUIRED for JUnit 5/6 support. Without this dependency, PIT
             silently finds zero tests and reports 0 mutants killed.
             Since version 1.2.0, the launcher version is auto-selected
             to match your JUnit 5 version.
@@ -193,6 +193,17 @@
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
             <version>1.2.1</version>
+          </dependency>
+          <!--
+            Spring Boot 4 ships JUnit 6 (junit-platform 6.0.x). PIT's
+            internal pitest.jar bundles an older junit-platform-launcher
+            (1.9.x) which conflicts. We explicitly add the matching
+            launcher version so PIT's minion process can discover tests.
+          -->
+          <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>6.0.2</version>
           </dependency>
         </dependencies>
         <configuration>
@@ -236,8 +247,10 @@
             mutationThreshold: Fail the build if the mutation score drops
             below this percentage. Start low (60-70%) and ratchet up over
             time. 80% is a good long-term target for business logic.
+
+            Uncomment the line below once you've strengthened your tests:
+            <mutationThreshold>80</mutationThreshold>
           -->
-          <mutationThreshold>80</mutationThreshold>
 
           <!--
             avoidCallsTo: PIT won't generate "remove void method call"
@@ -258,7 +271,6 @@
           <jvmArgs>
             <jvmArg>-XX:+EnableDynamicAgentLoading</jvmArg>
           </jvmArgs>
-          <verbose>true</verbose>
         </configuration>
       </plugin>
 

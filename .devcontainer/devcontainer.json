@@ -79,7 +79,10 @@
         "editor.fontLigatures": true,
         "editor.lineHeight": 24,
         "redhat.telemetry.enabled": false,
-        "java.compile.nullAnalysis.mode": "automatic"
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.recommendations.dependency.analytics.show": false,
+        "java.help.showReleaseNotes": false,
+        "java.upgrade.enabled": false
       }
     }
   },

@@ -4,11 +4,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>pragmatech.digital.workshops</groupId>
-  <artifactId>digdir-workshop</artifactId>
+  <artifactId>testing-workshop</artifactId>
   <version>1.0.0</version>
   <packaging>pom</packaging>
-  <name>Testing Spring Boot Applications Demystified</name>
-  <description>Workshop materials for Testing Spring Boot Applications Demystified</description>
+  <name>Effective Spring Boot Testing Beycond Code Coverage</name>
+  <description>Workshop materials for the workshop at Spring I/O 2026</description>
 
   <modules>
     <module>labs/lab-1</module>
@@ -24,36 +24,4 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
-
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <configuration>
-            <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <configuration>
-            <redirectTestOutputToFile>true</redirectTestOutputToFile>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
-        <configuration>
-          <source>${java.version}</source>
-          <target>${java.version}</target>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

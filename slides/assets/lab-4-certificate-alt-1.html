@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Certificate of Completion — Effective Spring Boot Testing</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      html, body {
+        font-family: "Inter", sans-serif;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+      }
+
+      .page {
+        width: 1123px;
+        height: 794px;
+        background: #ffffff;
+        position: relative;
+        overflow: hidden;
+        border-radius: 4px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      }
+
+      /* dark left panel */
+      .side-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 340px;
+        height: 100%;
+        background: linear-gradient(175deg, #0f172a 0%, #1e3a8a 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 2.5rem;
+        color: #fff;
+      }
+
+      .side-panel .logo {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+      }
+
+      .side-panel .company {
+        font-size: 11px;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        opacity: 0.7;
+        margin-bottom: 0.25rem;
+      }
+
+      .side-panel .domain {
+        font-family: "Playfair Display", serif;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 3rem;
+      }
+
+      .side-panel .topics {
+        list-style: none;
+        width: 100%;
+      }
+
+      .side-panel .topics li {
+        font-size: 12px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        text-align: center;
+        opacity: 0.85;
+      }
+
+      .side-panel .topics li:last-child {
+        border-bottom: none;
+      }
+
+      .side-panel .cert-no {
+        position: absolute;
+        bottom: 2.5rem;
+        font-size: 10px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        opacity: 0.5;
+      }
+
+      /* main content */
+      .main {
+        margin-left: 340px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 4rem 4.5rem;
+      }
+
+      .label {
+        font-size: 11px;
+        letter-spacing: 0.4em;
+        text-transform: uppercase;
+        color: #1e3a8a;
+        font-weight: 600;
+      }
+
+      .title {
+        font-family: "Playfair Display", serif;
+        font-size: 52px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.1;
+        margin-top: 0.75rem;
+      }
+
+      .divider {
+        width: 80px;
+        height: 3px;
+        background: #f59e0b;
+        margin: 1.75rem 0;
+      }
+
+      .presented-to {
+        font-family: "Playfair Display", serif;
+        font-style: italic;
+        font-size: 15px;
+        color: #64748b;
+      }
+
+      .name {
+        font-family: "Playfair Display", serif;
+        font-size: 48px;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-top: 0.5rem;
+      }
+
+      .description {
+        font-size: 15px;
+        color: #475569;
+        line-height: 1.7;
+        margin-top: 1.25rem;
+        max-width: 480px;
+      }
+
+      .description strong {
+        color: #0f172a;
+      }
+
+      .footer {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        margin-top: auto;
+        padding-top: 2rem;
+      }
+
+      .signature-block .sig {
+        font-family: "Playfair Display", serif;
+        font-style: italic;
+        font-size: 26px;
+        color: #334155;
+      }
+
+      .signature-block .line {
+        width: 220px;
+        height: 2px;
+        background: #0f172a;
+        margin-top: 0.25rem;
+      }
+
+      .signature-block .name-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #0f172a;
+        margin-top: 0.5rem;
+      }
+
+      .signature-block .role {
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-top: 0.15rem;
+      }
+
+      .date-block {
+        text-align: right;
+      }
+
+      .date-block .date {
+        font-size: 16px;
+        font-weight: 600;
+        color: #0f172a;
+      }
+
+      .date-block .date-label {
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-top: 0.15rem;
+      }
+
+      @media print {
+        html, body { background: none; padding: 0; }
+        .page { box-shadow: none; border-radius: 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <article class="page">
+      <!-- Left panel -->
+      <aside class="side-panel">
+        <img src="logo.webp" alt="PragmaTech Logo" class="logo" />
+        <div class="company">PragmaTech GmbH</div>
+        <div class="domain">pragmatech.digital</div>
+
+        <ul class="topics">
+          <li>Testcontainers</li>
+          <li>WireMock + OAuth2</li>
+          <li>Context Caching</li>
+          <li>Parallel Execution</li>
+          <li>Mutation Testing</li>
+        </ul>
+
+        <div class="cert-no">PT-2026-XXXX</div>
+      </aside>
+
+      <!-- Right content -->
+      <div class="main">
+        <div class="label">Pragmatech Workshops</div>
+        <h1 class="title">Certificate of<br />Completion</h1>
+        <div class="divider"></div>
+
+        <div class="presented-to">presented to</div>
+        <div class="name">{ Full Name }</div>
+
+        <p class="description">
+          For successfully completing the one-day, hands-on workshop
+          <strong>Effective Spring Boot Testing &mdash; Beyond Code Coverage</strong>.
+        </p>
+
+        <div class="footer">
+          <div class="signature-block">
+            <div class="sig">Philip Riecks</div>
+            <div class="line"></div>
+            <div class="name-label">Philip Riecks</div>
+            <div class="role">Instructor &mdash; PragmaTech GmbH</div>
+          </div>
+
+          <div class="date-block">
+            <div class="date">{ Workshop Date }</div>
+            <div class="date-label">Date</div>
+          </div>
+        </div>
+      </div>
+    </article>
+  </body>
+</html>

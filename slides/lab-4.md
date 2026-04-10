@@ -651,7 +651,7 @@ MDC.put("traceId",  traceId);
 
 // Every subsequent log line automatically includes these fields
 log.info("Book created");
-// → {"tenantId":"digdir","userId":"u42","traceId":"abc123","message":"Book created"}
+// → {"tenantId":"test","userId":"u42","traceId":"abc123","message":"Book created"}
 ```
 
 ---

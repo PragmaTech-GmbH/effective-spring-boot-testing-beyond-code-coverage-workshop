@@ -33,7 +33,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *       client under test hits the stub instead of the real OpenLibrary API.</li>
  * </ul>
  *
- * Inspired by the digdir-workshop WireMock lab.
  */
 class OpenLibraryApiClientTest {
 
