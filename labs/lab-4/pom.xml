@@ -249,6 +249,16 @@
             <avoidCallsTo>org.slf4j</avoidCallsTo>
             <avoidCallsTo>org.apache.logging</avoidCallsTo>
           </avoidCallsTo>
+
+          <!--
+            jvmArgs: Extra JVM flags passed to PIT's forked "minion" processes.
+            -XX:+EnableDynamicAgentLoading is needed because PIT attaches a
+            Java agent at runtime for bytecode instrumentation.
+          -->
+          <jvmArgs>
+            <jvmArg>-XX:+EnableDynamicAgentLoading</jvmArg>
+          </jvmArgs>
+          <verbose>true</verbose>
         </configuration>
       </plugin>
 

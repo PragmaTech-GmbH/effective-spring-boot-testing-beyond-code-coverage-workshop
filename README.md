@@ -1,8 +1,10 @@
-# Testing Spring Boot Applications Demystified Workshop
+# Effective Spring Boot Testing Beyond Code Coverage 🍃
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/PragmaTech-GmbH/effective-spring-boot-testing-beyond-code-coverage-workshop)
 
 A one-day, advanced workshop on writing **fast, reliable, high-signal** tests for Spring Boot applications. Assumes you already know JUnit 5, Mockito, and the basics of `@SpringBootTest`.
+
+**Location**: Spring I/0 2026, April 13, 09:00 - 17:00
 
 Proudly presented by [PragmaTech GmbH](https://pragmatech.digital/).
 
@@ -12,7 +14,7 @@ Take your Spring Boot testing skills beyond the basics: realistic infrastructure
 
 All four labs share **one** sample application — a Library Management System (book CRUD, OAuth2 Resource Server, OpenLibrary metadata enrichment, and an email-on-delete notification via Spring Mail).
 
-### Agenda — One Day, Four Labs
+### Agenda - One Day, Four Labs
 
 | Time          | Session                                                                                |
 |---------------|----------------------------------------------------------------------------------------|
@@ -35,14 +37,13 @@ Each lab in `labs/` (`lab-1` through `lab-4`) includes:
 ## Prerequisites
 
 - Java 21 (or later)
-- Maven 3.9+ (wrapper included)
 - Docker (for Testcontainers)
 - Your favorite IDE (IntelliJ IDEA, Eclipse, VS Code, etc.)
 
 ## Getting Started
 
 1. Clone this repository
-2. Import the projects into your IDE of choice.
+2. Import the project at the root into your IDE of choice.
 3. Run all builds with:
 
 ```bash
