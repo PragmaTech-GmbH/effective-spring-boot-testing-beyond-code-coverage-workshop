@@ -1,6 +1,6 @@
 # Testing Spring Boot Applications Demystified Workshop
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/PragmaTech-GmbH/digdir-workshop)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/PragmaTech-GmbH/effective-spring-boot-testing-beyond-code-coverage-workshop)
 
 A one-day, advanced workshop on writing **fast, reliable, high-signal** tests for Spring Boot applications. Assumes you already know JUnit 5, Mockito, and the basics of `@SpringBootTest`.
 
