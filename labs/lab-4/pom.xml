@@ -157,6 +157,101 @@
           <argLine>-XX:+EnableDynamicAgentLoading</argLine>
         </configuration>
       </plugin>
+      <!--
+        ╔══════════════════════════════════════════════════════════════════╗
+        ║  PIT Mutation Testing Plugin                                    ║
+        ║                                                                 ║
+        ║  What it does:                                                  ║
+        ║  PIT (PITest) automatically injects small bugs ("mutations")    ║
+        ║  into your compiled bytecode, then reruns your unit tests.      ║
+        ║  If a test fails → the mutant is "killed" (good).               ║
+        ║  If all tests pass → the mutant "survived" (test gap found).    ║
+        ║                                                                 ║
+        ║  Why we need it:                                                ║
+        ║  JaCoCo line coverage only tells you which code was EXECUTED,   ║
+        ║  not whether your tests actually VERIFY anything. PIT answers   ║
+        ║  the real question: "If this code had a bug, would my tests     ║
+        ║  catch it?"                                                     ║
+        ║                                                                 ║
+        ║  How to run:                                                    ║
+        ║  ./mvnw test-compile org.pitest:pitest-maven:mutationCoverage   ║
+        ║  Then open: target/pit-reports/index.html                       ║
+        ╚══════════════════════════════════════════════════════════════════╝
+      -->
+      <plugin>
+        <groupId>org.pitest</groupId>
+        <artifactId>pitest-maven</artifactId>
+        <version>1.19.1</version>
+        <dependencies>
+          <!--
+            REQUIRED for JUnit 5 support. Without this dependency, PIT
+            silently finds zero tests and reports 0 mutants killed.
+            Since version 1.2.0, the launcher version is auto-selected
+            to match your JUnit 5 version.
+          -->
+          <dependency>
+            <groupId>org.pitest</groupId>
+            <artifactId>pitest-junit5-plugin</artifactId>
+            <version>1.2.1</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <!--
+            targetClasses: Which production classes PIT should mutate.
+            Focus on classes with real business logic — services, domain,
+            utils. Avoid controllers, repositories, config, and DTOs.
+          -->
+          <targetClasses>
+            <param>pragmatech.digital.workshops.lab4.service.*</param>
+          </targetClasses>
+
+          <!--
+            targetTests: Which test classes PIT should run against mutants.
+            Only fast unit tests belong here. Exclude integration tests
+            (*IT.java) — PIT reruns tests many times and slow tests make
+            it unusable (hours instead of seconds).
+          -->
+          <targetTests>
+            <param>pragmatech.digital.workshops.lab4.*Test</param>
+          </targetTests>
+          <excludedTestClasses>
+            <param>**.*IT</param>
+            <param>**.*IntegrationTest</param>
+          </excludedTestClasses>
+
+          <!--
+            threads: PIT processes mutants in parallel. More threads =
+            faster runs. Set to the number of CPU cores available.
+          -->
+          <threads>4</threads>
+
+          <!--
+            timestampedReports: When false, PIT overwrites the previous
+            report instead of creating a new timestamped folder each run.
+            Keeps target/pit-reports/ clean during development.
+          -->
+          <timestampedReports>false</timestampedReports>
+
+          <!--
+            mutationThreshold: Fail the build if the mutation score drops
+            below this percentage. Start low (60-70%) and ratchet up over
+            time. 80% is a good long-term target for business logic.
+          -->
+          <mutationThreshold>80</mutationThreshold>
+
+          <!--
+            avoidCallsTo: PIT won't generate "remove void method call"
+            mutants for methods in these packages. Logging calls are a
+            common source of noise — removing a log.info() never breaks
+            a test, so the surviving mutant is meaningless.
+          -->
+          <avoidCallsTo>
+            <avoidCallsTo>org.slf4j</avoidCallsTo>
+            <avoidCallsTo>org.apache.logging</avoidCallsTo>
+          </avoidCallsTo>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
