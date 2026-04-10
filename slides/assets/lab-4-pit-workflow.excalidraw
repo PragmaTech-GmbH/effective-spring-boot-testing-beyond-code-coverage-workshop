@@ -1,0 +1,397 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "source",
+      "type": "rectangle",
+      "x": 50,
+      "y": 150,
+      "width": 160,
+      "height": 70,
+      "backgroundColor": "#e3fafc",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "createdAt": "2026-04-10T14:08:46.167Z",
+      "updatedAt": "2026-04-10T14:08:46.167Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvl6qjxrx09x1o",
+      "type": "text",
+      "x": 75,
+      "y": 170,
+      "width": 110,
+      "height": 30,
+      "strokeColor": "#1971c2",
+      "text": "Source Code\n(.java)",
+      "fontSize": 16,
+      "createdAt": "2026-04-10T14:08:46.167Z",
+      "updatedAt": "2026-04-10T14:08:46.167Z",
+      "version": 1
+    },
+    {
+      "id": "bytecode",
+      "type": "rectangle",
+      "x": 290,
+      "y": 150,
+      "width": 160,
+      "height": 70,
+      "backgroundColor": "#e3fafc",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvl1esvzyx32nk",
+      "type": "text",
+      "x": 320,
+      "y": 170,
+      "width": 100,
+      "height": 30,
+      "strokeColor": "#1971c2",
+      "text": "Bytecode\n(.class)",
+      "fontSize": 16,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "pit",
+      "type": "rectangle",
+      "x": 530,
+      "y": 130,
+      "width": 180,
+      "height": 110,
+      "backgroundColor": "#fff3bf",
+      "strokeColor": "#e67700",
+      "strokeWidth": 3,
+      "roughness": 1,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvl0a7z67d2j9c",
+      "type": "text",
+      "x": 560,
+      "y": 150,
+      "width": 120,
+      "height": 50,
+      "strokeColor": "#e67700",
+      "text": "PIT Engine\n\nMutates bytecode\nin memory",
+      "fontSize": 15,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "tests",
+      "type": "rectangle",
+      "x": 790,
+      "y": 150,
+      "width": 180,
+      "height": 70,
+      "backgroundColor": "#e3fafc",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvlfpv9tscdd5f",
+      "type": "text",
+      "x": 810,
+      "y": 165,
+      "width": 140,
+      "height": 30,
+      "strokeColor": "#1971c2",
+      "text": "Run Matching\nUnit Tests",
+      "fontSize": 16,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "killed",
+      "type": "rectangle",
+      "x": 1060,
+      "y": 80,
+      "width": 160,
+      "height": 60,
+      "backgroundColor": "#d3f9d8",
+      "strokeColor": "#2b8a3e",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvll6mky7nl4mb",
+      "type": "text",
+      "x": 1088,
+      "y": 96,
+      "width": 100,
+      "height": 25,
+      "strokeColor": "#2b8a3e",
+      "text": "Killed\nTest failed",
+      "fontSize": 16,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "survived",
+      "type": "rectangle",
+      "x": 1060,
+      "y": 220,
+      "width": 160,
+      "height": 60,
+      "backgroundColor": "#ffe3e3",
+      "strokeColor": "#c92a2a",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvlyhts0ujgnwk",
+      "type": "text",
+      "x": 1080,
+      "y": 236,
+      "width": 120,
+      "height": 25,
+      "strokeColor": "#c92a2a",
+      "text": "Survived\nAll tests pass",
+      "fontSize": 16,
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvl3hbjvq7inod",
+      "type": "arrow",
+      "x": 218,
+      "y": 185,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "endArrowhead": "arrow",
+      "createdAt": "2026-04-10T14:08:46.168Z",
+      "updatedAt": "2026-04-10T14:08:46.168Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "source",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "bytecode",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mnszemvlzpv5lk4i9le",
+      "type": "arrow",
+      "x": 458,
+      "y": 185,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "endArrowhead": "arrow",
+      "createdAt": "2026-04-10T14:08:46.169Z",
+      "updatedAt": "2026-04-10T14:08:46.169Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "bytecode",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "pit",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mnszemvl5fcpwmmyz28",
+      "type": "arrow",
+      "x": 718,
+      "y": 185,
+      "width": 80,
+      "height": 0,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          64,
+          0
+        ]
+      ],
+      "endArrowhead": "arrow",
+      "createdAt": "2026-04-10T14:08:46.169Z",
+      "updatedAt": "2026-04-10T14:08:46.169Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "pit",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "tests",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mnszemvlrnye8ol9i",
+      "type": "arrow",
+      "x": 977.6865887294472,
+      "y": 156.8211763280441,
+      "width": 90,
+      "height": -40,
+      "strokeColor": "#2b8a3e",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          74.62682254110575,
+          -21.526968040703565
+        ]
+      ],
+      "endArrowhead": "arrow",
+      "createdAt": "2026-04-10T14:08:46.170Z",
+      "updatedAt": "2026-04-10T14:08:46.170Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "tests",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "killed",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mnszemvlnla8oeij1x",
+      "type": "arrow",
+      "x": 977.7611400011626,
+      "y": 209.44028500029066,
+      "width": 90,
+      "height": 40,
+      "strokeColor": "#c92a2a",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          74.47771999767474,
+          18.619429999418657
+        ]
+      ],
+      "endArrowhead": "arrow",
+      "createdAt": "2026-04-10T14:08:46.170Z",
+      "updatedAt": "2026-04-10T14:08:46.170Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "tests",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "survived",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mnszemvlb5l8nefejyw",
+      "type": "text",
+      "x": 220,
+      "y": 130,
+      "width": 50,
+      "height": 20,
+      "strokeColor": "#868e96",
+      "text": "javac",
+      "fontSize": 14,
+      "createdAt": "2026-04-10T14:08:46.170Z",
+      "updatedAt": "2026-04-10T14:08:46.170Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvl0d9ul2hlw89l",
+      "type": "text",
+      "x": 1085,
+      "y": 60,
+      "width": 40,
+      "height": 20,
+      "strokeColor": "#2b8a3e",
+      "text": "Good!",
+      "fontSize": 13,
+      "createdAt": "2026-04-10T14:08:46.170Z",
+      "updatedAt": "2026-04-10T14:08:46.170Z",
+      "version": 1
+    },
+    {
+      "id": "mnszemvlreab70an4w",
+      "type": "text",
+      "x": 1085,
+      "y": 286,
+      "width": 100,
+      "height": 20,
+      "strokeColor": "#c92a2a",
+      "text": "Gap in tests!",
+      "fontSize": 13,
+      "createdAt": "2026-04-10T14:08:46.170Z",
+      "updatedAt": "2026-04-10T14:08:46.170Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}

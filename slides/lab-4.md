@@ -69,62 +69,194 @@ class OutputCaptureTest {
   
 ---
 
-## Mutation Testing with PIT
+## Why Code Coverage Lies
 
-- Having high code coverage might give you a **false sense of security**
-- Mutation Testing with [PIT](https://pitest.org/quickstart/)
-- Beyond Line Coverage: Traditional tools like JaCoCo show which code runs during tests, but PIT verifies if our tests actually detect when code behaves incorrectly by introducing "**mutations**" to our source code.
-- Quality Guarantee: PIT automatically **modifies our code** (changing conditionals, return values, etc.) to ensure our tests fail when they should, **revealing blind spots** in seemingly comprehensive test suites.
-
----
-
-![center h:500 w:1300](assets/mutation-testing-explained.png)
-
----
-
-## Mutation Testing with PIT
-
-**The problem:** 100% line coverage ≠ good tests. Weak assertions can still pass.
+- JaCoCo measures **lines executed**, not **behavior verified**
+- Remove every assertion from your tests — coverage stays at 100%
 
 ```java
 @Test
-void shouldReturnFee() {
-  BigDecimal fee = cut.calculateFee(borrowedBook, borrowedDate);
-  assertThat(fee).isNotNull(); // ← This assertion is meaningless!
+void shouldReturnFeeWhenBookIsOverdue() {
+  BigDecimal fee = cut.calculateFee(borrowedBook, sevenDaysAgo);
+  // No assertion at all — JaCoCo still reports this line as "covered"
 }
 ```
 
-**PIT solution:** Automatically mutates your production code and checks whether your tests catch it.
-
-```bash
-cd labs/lab-4
-./mvnw pitest:mutationCoverage
-# Open target/pit-reports/index.html
-```
-
+- 100% line coverage + zero assertions = **zero confidence**
+- We need a tool that checks whether tests actually **detect bugs**
 
 ---
 
-## PIT in Action - `LateReturnFeeCalculator`
+## What Is Mutation Testing?
+
+![center h:420 w:1100](assets/mutation-testing-explained.png)
+
+- [PIT](https://pitest.org/) **injects small bugs** (mutants) into your compiled code, then reruns your tests
+- **Killed** — at least one test fails, the test suite detected the bug
+- **Survived** — all tests still pass, exposing a **gap** in your assertions
+- **Mutation Score** = `killed mutants / total mutants x 100`
+
+---
+
+## How PIT Works Internally
+
+![center h:350 w:1100](assets/lab-4-pit-workflow.png)
+
+1. Analyses **bytecode** of production classes (never touches source)
+2. Collects per-test line coverage, selects only **matching tests** per mutant
+3. Orders tests by speed — fastest first
+4. **Early exit:** stops as soon as the first test kills a mutant
+
+> PIT never modifies your `.java` files — everything happens in memory at the bytecode level.
+
+---
+
+## PIT Default Mutators (Gregor Engine)
+
+| Mutator | What it does | `LateReturnFeeCalculator` example |
+|---|---|---|
+| Conditionals Boundary | `<=` to `<` | `daysOverdue <= 7` becomes `daysOverdue < 7` |
+| Negate Conditionals | `!=` to `==` | `status != BORROWED` becomes `status == BORROWED` |
+| Math | `*` to `/`, `+` to `-` | `RATE.multiply(days)` → conceptually division |
+| Return Values | non-null to null, 0 to 1 | `return fee` → `return BigDecimal.ZERO` |
+| Void Method Calls | removes the call entirely | removes void method invocations |
+
+> PIT applies **one mutation at a time** — each mutant tests a single fault.
+
+---
+
+## Maven Setup — PIT with JUnit 5
+
+```xml
+<plugin>
+  <groupId>org.pitest</groupId>
+  <artifactId>pitest-maven</artifactId>
+  <version>1.19.1</version>
+  <dependencies>
+    <dependency>
+      <groupId>org.pitest</groupId>
+      <artifactId>pitest-junit5-plugin</artifactId>
+      <version>1.2.1</version>
+    </dependency>
+  </dependencies>
+  <configuration>
+    <targetClasses>
+      <param>pragmatech.digital.workshops.lab4.service.*</param>
+    </targetClasses>
+  </configuration>
+</plugin>
+```
+
+```bash
+./mvnw test-compile org.pitest:pitest-maven:mutationCoverage
+# Report: target/pit-reports/index.html
+```
+
+---
+
+## Demo: Weak Test — 100% Coverage, Mutants Survive
 
 ```java
-// Production code with multiple fee tiers
-public BigDecimal calculateFee(Book book, LocalDate borrowedDate) {
-  if (book.getStatus() != BookStatus.BORROWED) return BigDecimal.ZERO;
+@Test
+void shouldReturnFeeWhenBookIsOverdue() {
+  Book book = BookMother.borrowedBook();
+  LocalDate borrowedDate = LocalDate.now(clock).minusDays(10);
 
-  long daysOverdue = ChronoUnit.DAYS.between(borrowedDate, LocalDate.now(clock));
+  BigDecimal fee = cut.calculateFee(book, borrowedDate);
 
-  if (daysOverdue <= 0)       return BigDecimal.ZERO;
-  else if (daysOverdue <= 7)  return RATE_TIER_ONE.multiply(BigDecimal.valueOf(daysOverdue));
-  else if (daysOverdue <= 14) return RATE_TIER_TWO.multiply(BigDecimal.valueOf(daysOverdue));
-  else                        return RATE_TIER_THREE.multiply(BigDecimal.valueOf(daysOverdue));
+  assertThat(fee).isNotNull();                    // weak: any non-null passes
+  assertThat(fee).isInstanceOf(BigDecimal.class);  // meaningless
 }
 ```
 
-**PIT mutates conditionals** (`<= 7` → `< 7`, `<= 14` → `< 14`) — boundary tests are essential.
+**JaCoCo:** 100% line coverage — every branch entered
 
-> **A mutation is "killed"** when at least one test fails because of the mutation.
-> **A surviving mutant** exposes a gap in your test suite.
+**PIT:** 8 of 12 mutants **survive**
+- `<= 7` mutated to `< 7` — tests still pass
+- `RATE_TIER_TWO` replaced with `RATE_TIER_ONE` — tests still pass
+- Return value replaced with `BigDecimal.ZERO` — tests still pass
+
+---
+
+## Demo: Strong Tests — All Mutants Killed
+
+```java
+@Test
+void shouldReturnZeroFeeWhenBookIsNotBorrowed() {
+  assertThat(cut.calculateFee(availableBook, tenDaysAgo)).isEqualByComparingTo("0");
+}
+
+@Test
+void shouldReturnTierOneFeeAtBoundary() {
+  assertThat(cut.calculateFee(borrowedBook, sevenDaysAgo)).isEqualByComparingTo("7.00");
+}
+
+@Test
+void shouldReturnTierTwoFeeAfterBoundary() {
+  assertThat(cut.calculateFee(borrowedBook, eightDaysAgo)).isEqualByComparingTo("12.00");
+}
+
+@Test
+void shouldReturnTierThreeFeeAfterSecondBoundary() {
+  assertThat(cut.calculateFee(borrowedBook, fifteenDaysAgo)).isEqualByComparingTo("30.00");
+}
+```
+
+**Boundary pairs** (`7` vs `8`, `14` vs `15`) kill the conditionals-boundary mutants.
+
+---
+
+## Reading PIT Reports
+
+Open `target/pit-reports/index.html` after each run.
+
+| Color | Meaning | Action |
+|---|---|---|
+| **Green line** | Mutant killed | Tests caught the injected bug |
+| **Red line** | Mutant survived | **Add or strengthen a test** |
+| **Light green** | Covered, no mutation applicable | No action needed |
+| **No highlight** | Not covered by any test | Add coverage first |
+
+**Focus on:** survived mutants in **business logic** (service, domain)
+
+**Ignore:** survived mutants in DTOs, getters/setters, logging, configuration
+
+---
+
+## PIT in a Spring Boot Project
+
+![center h:330 w:850](assets/lab-4-pit-targeting.png)
+
+**Target:** `@Service` classes, domain entities with logic, utility classes
+
+**Exclude from PIT:**
+- `@Controller` / `@RestController` — test via `@WebMvcTest`
+- `@Repository` — test via `@DataJpaTest` + real DB
+- `@Configuration`, DTOs, generated code (Lombok, MapStruct)
+- Integration tests (`*IT.java`) — too slow for PIT's repeated runs
+
+---
+
+## CI Integration & Adoption Strategy
+
+**Don't run PIT on every push** — it's 5-20x slower than a normal test run.
+
+**Phase 1 — Local exploration**
+```bash
+./mvnw test-compile org.pitest:pitest-maven:mutationCoverage
+```
+
+**Phase 2 — Nightly CI** (full codebase scan, upload report as artifact)
+
+**Phase 3 — PR-scoped** (only mutate changed files, much faster)
+```bash
+./mvnw test-compile org.pitest:pitest-maven:scmMutationCoverage
+```
+
+**Performance tuning:**
+- `<threads>4</threads>` — parallel mutant execution
+- `<avoidCallsTo>org.slf4j,org.apache.logging</avoidCallsTo>` — skip logging mutants
+- `<mutationThreshold>80</mutationThreshold>` — fail build below threshold
 
 ---
 
