@@ -88,6 +88,35 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ---
 
+# Why Test Software?
+
+---
+
+![bg right:33%](assets/ai-image.jpg)
+
+
+## The AI Trap: Testing is Your Safety Net
+
+- AI generates the logic, but you inherit the liability. It can write the function; it won't join the post-mortem.
+- If the AI wrote the code and the AI wrote the test, you are the only person left to solve the hallucination when the system crashes.
+- AI is the accelerator. Your tests are the brakes. You need both to go fast.
+
+AI provides the horsepower, but your test suite provides the steering. Together, they turn **coding fast** into **shipping reliably with confidence**.
+
+---
+
+# My Overall Northstar for Automated Testing
+
+Imagine seeing this pull request on a Friday afternoon:
+
+![](assets/northstar-pr.png)
+
+How confident are you to merge this major Spring Boot upgrade and deploy it to production once the pipeline turns green?
+
+Good tests don't just catch bugs - they give you **fast feedback** and **confident deployments**.
+
+---
+
 # Workshop Technical Agenda Revisited
 
 - Test slices and context management in Spring Boot
@@ -130,7 +159,18 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ## Quick Spring Boot Testing Recap
 
+- The "Testing Swiss Army Knife"
 
+
+```xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-test</artifactId>
+  <scope>test</scope>
+</dependency>
+```
+
+- Batteries-included for testing by transitively including popular testing libraries: JUnit, Mockito, AssertJ, etc.
 
 
 ---
