@@ -1,0 +1,284 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "mcp-excalidraw-server",
+  "elements": [
+    {
+      "id": "mnshpiv5dwedy3osdt5",
+      "type": "text",
+      "x": 80,
+      "y": 10,
+      "strokeColor": "#212529",
+      "text": "OAuth2 Resource Server — JWT Validation Flow",
+      "fontSize": 22,
+      "createdAt": "2026-04-10T05:53:21.090Z",
+      "updatedAt": "2026-04-10T05:53:21.090Z",
+      "version": 1
+    },
+    {
+      "id": "frontend",
+      "type": "rectangle",
+      "x": 50,
+      "y": 100,
+      "width": 140,
+      "height": 70,
+      "backgroundColor": "#a5d8ff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "createdAt": "2026-04-10T05:53:21.090Z",
+      "updatedAt": "2026-04-10T05:53:21.090Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv5z0ug7s2w5ir",
+      "type": "text",
+      "x": 75,
+      "y": 118,
+      "strokeColor": "#1971c2",
+      "text": "Frontend\n(Browser)",
+      "fontSize": 16,
+      "createdAt": "2026-04-10T05:53:21.090Z",
+      "updatedAt": "2026-04-10T05:53:21.090Z",
+      "version": 1
+    },
+    {
+      "id": "springboot",
+      "type": "rectangle",
+      "x": 370,
+      "y": 80,
+      "width": 180,
+      "height": 110,
+      "backgroundColor": "#b2f2bb",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "createdAt": "2026-04-10T05:53:21.090Z",
+      "updatedAt": "2026-04-10T05:53:21.090Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv5mi3redovoyk",
+      "type": "text",
+      "x": 388,
+      "y": 92,
+      "strokeColor": "#2f9e44",
+      "text": "Spring Boot App\n(Resource Server)",
+      "fontSize": 16,
+      "createdAt": "2026-04-10T05:53:21.090Z",
+      "updatedAt": "2026-04-10T05:53:21.090Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv5ubu0h4klf9o",
+      "type": "text",
+      "x": 393,
+      "y": 145,
+      "strokeColor": "#495057",
+      "text": "NimbusJwtDecoder\nvalidates JWT signature",
+      "fontSize": 12,
+      "createdAt": "2026-04-10T05:53:21.090Z",
+      "updatedAt": "2026-04-10T05:53:21.090Z",
+      "version": 1
+    },
+    {
+      "id": "keycloak",
+      "type": "rectangle",
+      "x": 740,
+      "y": 100,
+      "width": 150,
+      "height": 70,
+      "backgroundColor": "#ffd8a8",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 1,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv5mz1g2oj4m1c",
+      "type": "text",
+      "x": 770,
+      "y": 118,
+      "strokeColor": "#e8590c",
+      "text": "Keycloak\n(IdP)",
+      "fontSize": 16,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv5djanidkbgqp",
+      "type": "arrow",
+      "x": 198,
+      "y": 135,
+      "width": 170,
+      "height": 0,
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          164,
+          0
+        ]
+      ],
+      "endArrowhead": "arrow",
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "frontend",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "springboot",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mnshpiv5ey2m1qiufjg",
+      "type": "text",
+      "x": 195,
+      "y": 60,
+      "strokeColor": "#1971c2",
+      "text": "  GET /api/books/1\n  Authorization: Bearer <JWT>",
+      "fontSize": 12,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv5ev2bea2pbo",
+      "type": "arrow",
+      "x": 558,
+      "y": 135,
+      "width": 180,
+      "height": 0,
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          174,
+          0
+        ]
+      ],
+      "endArrowhead": "arrow",
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1,
+      "startBinding": {
+        "elementId": "springboot",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "keycloak",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mnshpiv5xzktbtfjd4",
+      "type": "text",
+      "x": 568,
+      "y": 60,
+      "strokeColor": "#e8590c",
+      "text": "GET /.well-known/openid-configuration\n→ discover JWKS URI → fetch public key",
+      "fontSize": 12,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv51lmtcymtwpxi",
+      "type": "text",
+      "x": 568,
+      "y": 198,
+      "strokeColor": "#868e96",
+      "text": "fetched on startup, then cached",
+      "fontSize": 11,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv5elqv7yf0qft",
+      "type": "text",
+      "x": 50,
+      "y": 240,
+      "strokeColor": "#495057",
+      "text": "1. On startup, Spring fetches the JWKS (public key) from Keycloak's well-known endpoint",
+      "fontSize": 13,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv581zdqrbslng",
+      "type": "text",
+      "x": 50,
+      "y": 260,
+      "strokeColor": "#495057",
+      "text": "2. Frontend sends requests with a signed JWT in the Authorization header",
+      "fontSize": 13,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv585qgft9ti4h",
+      "type": "text",
+      "x": 50,
+      "y": 280,
+      "strokeColor": "#495057",
+      "text": "3. NimbusJwtDecoder validates the JWT signature against the cached public key",
+      "fontSize": 13,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "callout",
+      "type": "rectangle",
+      "x": 50,
+      "y": 310,
+      "width": 840,
+      "height": 35,
+      "backgroundColor": "#fff3bf",
+      "strokeColor": "#f08c00",
+      "strokeWidth": 1,
+      "roughness": 1,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    },
+    {
+      "id": "mnshpiv5t9vf8ofwgzg",
+      "type": "text",
+      "x": 65,
+      "y": 318,
+      "strokeColor": "#e8590c",
+      "text": "In tests: we need a valid JWT whose signature can be verified against known keys → need a running Keycloak (or a stub)",
+      "fontSize": 13,
+      "createdAt": "2026-04-10T05:53:21.091Z",
+      "updatedAt": "2026-04-10T05:53:21.091Z",
+      "version": 1
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}

@@ -171,6 +171,8 @@ Good tests don't just catch bugs - they give you **fast feedback** and **confide
 ```
 
 - Batteries-included for testing by transitively including popular testing libraries: JUnit, Mockito, AssertJ, etc.
+- **Maven**: Surefire plugin for unit tests and Failsafe plugin for integration tests
+- **Gradle**: Built-in test tasks for unit test and a custom task for integration tests
 
 
 ---
@@ -179,7 +181,7 @@ Good tests don't just catch bugs - they give you **fast feedback** and **confide
 
 ![center h:500 w:1000](assets/decision-tree-testing-en.png)
 
-
+---
 
 ![bg right:33%](assets/slice.jpg)
 
@@ -256,12 +258,10 @@ Mocking all of these is fragile and unrealistic.
 > *"Throwaway, Docker-backed instances of real services for integration tests."*
 
 ```java
-static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine");
+static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
 ```
 
 - Java library that manages **Docker containers** from inside Java code
-- Container lifecycle is tied to the test: starts before, stops after
-- `static` containers are shared across all tests in the class (faster)
 - [Modules](https://testcontainers.com/modules/) for PostgreSQL, MySQL, Redis, Kafka, LocalStack, and more
 - Eliminates the "works on my machine" database problem
 
@@ -289,20 +289,22 @@ ad0f804068dc   testcontainers/ryuk:0.12.0   "/bin/ryuk"              10 seconds 
 ## Testcontainers & Spring Boot Integration
 
 ```java {2,5,6}
-@DataJpaTest
+@SpringBootTest
 @Testcontainers
-class BookRepositoryTest {
+class ApplicationIT {
 
   @Container
   @ServiceConnection
-  static PostgreSQLContainer<?> postgres =
-      new PostgreSQLContainer<>("postgres:16-alpine");
+  static PostgreSQLContainer postgres =
+      new PostgreSQLContainer("postgres:16-alpine");
 
 }
 ```
 
-- `@Testcontainers` hooks the container into the JUnit 5 extension lifecycle
+- `@Testcontainers` hooks the container into the JUnit Jupiter extension lifecycle
 - `@ServiceConnection` reads host/port from the running container and **auto-configures** Spring's datasource - no manual URL wiring needed
+
+When/how to start containers properly? We'll see that in **lab3**.
 
 ---
 
@@ -311,8 +313,8 @@ class BookRepositoryTest {
 Alternatively, we can use `@DynamicPropertySource` to programmatically set properties from the container:
 
 ```java
-static PostgreSQLContainer<?> database =
-  new PostgreSQLContainer<>("postgres:17.2")
+static PostgreSQLContainer database =
+  new PostgreSQLContainer("postgres:16-alpine")
     .withDatabaseName("test")
     .withUsername("duke")
     .withPassword("s3cret");
@@ -327,17 +329,6 @@ static void properties(DynamicPropertyRegistry registry) {
 
 ---
 
-
-## Dynamic Properties — When You Still Need Them
-
-```java
-
-```
-
-Use this for containers without a `@ServiceConnection` factory (yet).
-
----
-
 ## Mailpit as a Test SMTP Server
 
 ```java
@@ -348,10 +339,10 @@ static GenericContainer<?> mailpit =
         .withEnv("MP_SMTP_AUTH_ALLOW_INSECURE", "1");
 ```
 
-- Port `1025` — SMTP receiver
-- Port `8025` — HTTP UI Inbox of received emails
+- Port `1025` - SMTP receiver
+- Port `8025` - HTTP UI Inbox of received emails
 
-```
+```java
 @DynamicPropertySource
 static void mailProps(DynamicPropertyRegistry registry) {
   registry.add("spring.mail.host", mailpit::getHost);
@@ -363,31 +354,24 @@ static void mailProps(DynamicPropertyRegistry registry) {
 
 ## What About Keycloak?
 
-- As our application acts as an OAuth2 Resource Server, we need a running Keycloak instance to validate JWTs
-- During application startup and then frequently during runtime, Spring will try to fetch the OpenID configuration from Keycloak's well-known endpoint (`/.well-known/openid-configuration`) to discover the issuer's public keys and other metadata
-- When writing integration tests, we need a valid JWT that signature can be validated against
+![center](assets/oauth2-flow-simplifed.png)
 
-![center](assets/oauth2-resourceserver-wiremock.png)
+---
+
+## Preparing Keycloak
+
+- Sample realm with client configuration and test user
+
 
 
 ---
 
 
-## Container Lifecycle Strategies
+## Bonus: Local Dev with Testcontainers
 
-- **Per-test class** — `@Testcontainers` + non-static `@Container`
-- **Per-JVM (singleton)** — `static` field, manual `start()`
-- **Spring-managed** — `@ServiceConnection` + `@Bean` in a `@TestConfiguration`
+`spring-boot-testonctinaerrs` and `SpringApplication.from(...).with(TestcontainersConfig.class)` let you boot the app **locally** against the same containers your tests use.
 
-We'll revisit performance trade-offs in **Lab 3**.
-
----
-
-## Local Dev with Testcontainers
-
-`spring-boot-docker-compose` and `SpringApplication.from(...).with(TestcontainersConfig.class)` let you boot the app **locally** against the same containers your tests use.
-
-→ Same setup for `mvnw spring-boot:test-run` and the IDE debugger.
+Run with `./mvnw spring-boot:test-run` 
 
 ---
 
