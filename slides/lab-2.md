@@ -89,21 +89,7 @@ In tests we want to:
 
 Introducing **WireMock**
 
-> *"A simulator for HTTP-based APIs."*
-
-- In-memory (or Docker container) Jetty to stub HTTP responses to simulate a remote HTTP API
-- Simulate failures, slow responses, etc.
-- Alternatives: MockServer, MockWebServer, etc.
-- Stub `GET /api/books/...` with a pre-defined JSON body
-- **Verify** which requests our code made
-
----
-
-![w:1200 h:700](assets/wiremock-usage.svg)
-
----
-
-## Introducing WireMock
+> *"Simulate APIs. Ship Faster. WireMock is the industry standard for scalable API simulation."*
 
 - In-memory (or Docker container) Jetty to stub HTTP responses to simulate a remote HTTP API
 - Simulate failures, slow responses, etc.
@@ -112,17 +98,30 @@ Introducing **WireMock**
 ```java
 WireMockServer wireMockServer = new WireMockServer(wireMockConfig().dynamicPort());
 wireMockServer.start();
+```
 
-// Feels a bit like Mockito, but for HTTP stubbing
+---
+
+![w:1200 h:700](assets/wiremock-usage.svg)
+
+---
+
+## Stubbing a Response
+
+Stubbing a response with WireMock almost feels like working with Mockito:
+
+```java {2,3,5}
 wireMockServer.stubFor(
-  WireMock.get(urlPathEqualTo("/api/books"))
-    .withQueryParam("bibkeys", WireMock.equalTo("ISBN:" + isbn))
+  WireMock.get(urlPathEqualTo("/api/books")) // <- match the path
+    .withQueryParam("bibkeys", WireMock.equalTo("ISBN:" + isbn)) // <- match the query params
     .willReturn(
-      aResponse()
+      aResponse()  // <- define the HTTP response
         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .withBodyFile(isbn + "-success.json")))
 );
 ```
+
+Static response files go into `src/test/resources/__files/` by default, but we can also define the body inline with `withBody(...)`.
 
 ---
 
@@ -157,7 +156,16 @@ public WebClient openLibraryWebClient() {
 // unit tests
 new OpenLibraryApiClient(WebClient.builder().baseUrl(wireMockServer.baseUrl()).build());
 
+// integration tests
+@DynamicPropertySource
+static void overrideOpenLibraryBaseUrl(DynamicPropertyRegistry registry) {
+  registry.add("book.metadata.api.url", WIREMOCK::baseUrl);
+}
 
+// or
+TestPropertyValues.of(
+  "book.metadata.api.url=http://localhost:" + WIREMOCK.baseUrl()
+).applyTo(applicationContext);
 ```
 
 ---
@@ -210,40 +218,24 @@ wireMockServer.startRecording(RecordSpec.forTarget("https://openlibrary.org/")
 wireMockServer.stopRecording();
 ```
 
+---
 
-## Effective WireMock Usage
+## Replacing Keycloak with WireMock for a simulated IdP
 
-```java
-@RegisterExtension
-static WireMockExtension wm = WireMockExtension.newInstance()
-    .options(wireMockConfig().dynamicPort())
-    .build();
 
-@DynamicPropertySource
-static void apiUrl(DynamicPropertyRegistry r) {
-  r.add("book.metadata.api.url", wm::baseUrl);
-}
-```
+![oauth2-flow-simplifed.png](assets/oauth2-flow-simplifed.png)
+
 
 ---
 
-## Stubbing a Response
+## Replacing Keycloak with WireMock for a simulated IdP
 
-```java
-wm.stubFor(get(urlPathMatching("/api/books/.*"))
-  .willReturn(okJson("""
-    { "title": "Effective Java", "covers": [12345] }
-  """)));
-```
-
-Then assert WireMock was actually called:
-
-```java
-wm.verify(getRequestedFor(urlPathEqualTo("/api/books/9780134685991")));
-```
+- Generate an RSA key pair in the test
+- Stub `/.well-known/openid-configuration` on a WireMock server
+- Sign tokens locally — the `NimbusJwtDecoder` fetches & caches our public key
+- Faster than Keycloak (no container boot), but not exercising a real IdP
 
 ---
-
 
 ## Using `@SpringBootTest` to Start the Entire Context
 
@@ -317,15 +309,6 @@ class SampleIT {
   }
 }
 ```
-
-
-## WireMock — Advanced Features
-
-- **Response templates** — Handlebars over the request body
-- **Proxying** — record real responses, replay them
-- **Stateful scenarios** — first call fails, second succeeds (resilience tests)
-- **Faults** — connection reset, slow response, malformed body
-
 ---
 
 ## How to Provide a Valid JWT for an Integration Test
@@ -340,38 +323,7 @@ We'll use option 3 for **`RANDOM_PORT`** integration tests.
 
 ---
 
-## Alternative — Stub the JWKS with WireMock
 
-![bg right:40% w:90%](assets/lab-2-jwks-stub-flow.png)
-
-- Generate an RSA key pair in the test
-- Stub `/.well-known/openid-configuration` and `/protocol/openid-connect/certs` on a WireMock server
-- Sign tokens locally — the `NimbusJwtDecoder` fetches & caches your fake public key
-- Faster than Keycloak (no container boot), but you're not exercising a real IdP
-
-See `experiment/WireMockJwksAuthIT` in lab-2.
-
----
-
-## OAuth2 Option 3 — Sign a Token Yourself
-
-```java
-@TestConfiguration
-class TestJwtConfig {
-  @Bean JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withPublicKey(testPublicKey).build();
-  }
-}
-```
-
-Then in the test:
-
-```java
-String token = TestJwtFactory.signed(Map.of("sub", "alice", "scope", "books:write"));
-mockMvc.perform(post("/api/books").header("Authorization", "Bearer " + token));
-```
-
----
 
 ## The Two Modes of `@SpringBootTest`
 

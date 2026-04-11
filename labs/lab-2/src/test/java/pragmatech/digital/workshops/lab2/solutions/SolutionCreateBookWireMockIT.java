@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import pragmatech.digital.workshops.lab2.client.OpenLibraryApiClient;
-import pragmatech.digital.workshops.lab2.experiment.MailpitContainer;
+import pragmatech.digital.workshops.lab2.config.MailpitContainer;
 import pragmatech.digital.workshops.lab2.repository.BookRepository;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;

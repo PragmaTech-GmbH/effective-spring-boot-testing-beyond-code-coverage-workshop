@@ -1,5 +1,7 @@
 package pragmatech.digital.workshops.lab2.experiment;
 
+import java.time.LocalDate;
+
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.jupiter.api.AfterAll;
@@ -15,11 +17,13 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import pragmatech.digital.workshops.lab2.entity.Book;
+import pragmatech.digital.workshops.lab2.repository.BookRepository;
 
 /**
  * Experiment — a BookController integration test that skips Keycloak entirely.
  *
- * <p>Instead of booting a Keycloak Testcontainer (as {@code AbstractOAuth2IntegrationTest}
+ * <p>Instead of booting a Keycloak Testcontainers (as {@code AbstractOAuth2IntegrationTest}
  * does), we stand up a {@link WireMockServer} once and let {@link OAuth2Stubs}
  * pretend it is the identity provider: it stubs the OIDC discovery document and
  * the JWKS endpoint with a locally generated RSA key, and mints tokens signed
@@ -39,9 +43,8 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
  * Keep at least one {@code AbstractOAuth2IntegrationTest}-based test around for
  * that.
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
-@DisplayName("BookController IT — Keycloak replaced by WireMock JWKS stub")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class BookControllerOAuth2StubIT {
 
   @ServiceConnection
@@ -77,20 +80,27 @@ class BookControllerOAuth2StubIT {
   @Autowired
   RestTestClient restTestClient;
 
+  @Autowired
+  BookRepository bookRepository;
+
   @Test
-  @DisplayName("should return 2xx/404 when caller presents a token with books:read scope")
   void shouldReturnOkWhenTokenHasReadScope() {
+
+    Book savedBook = this.bookRepository.save(new Book(
+      "978-0000000001",
+      "repository-preloaded",
+      LocalDate.of(2024, 1, 1),
+      "A Doomed Book",
+      "Anonymous"));
+
     String token = oauth2Stubs.signedJwt("alice", "books:read");
 
-    restTestClient.get()
-      .uri("/api/books/1")
+    this.restTestClient.get()
+      .uri("/api/books/" + savedBook.getId())
       .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
       .exchange()
-      .expectStatus().value(status -> {
-        if (status != 200 && status != 404) {
-          throw new AssertionError("Expected 200 or 404 but got " + status);
-        }
-      });
+      .expectStatus()
+      .is2xxSuccessful();
   }
 
   @Test
@@ -102,7 +112,8 @@ class BookControllerOAuth2StubIT {
       .uri("/api/books/1")
       .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
       .exchange()
-      .expectStatus().isForbidden();
+      .expectStatus()
+      .isForbidden();
   }
 
   @Test

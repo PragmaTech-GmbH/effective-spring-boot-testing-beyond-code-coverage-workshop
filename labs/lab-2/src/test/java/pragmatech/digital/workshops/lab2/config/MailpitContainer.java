@@ -1,4 +1,4 @@
-package pragmatech.digital.workshops.lab2.experiment;
+package pragmatech.digital.workshops.lab2.config;
 
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
