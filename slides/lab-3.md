@@ -3,7 +3,7 @@ marp: true
 theme: pragmatech
 ---
 
-![bg](./assets/digdir-cover.jpg)
+![bg](./assets/barcelona-spring-io.jpg)
 
 ---
 
@@ -12,7 +12,9 @@ theme: pragmatech
 
 # Effective Spring Boot Testing Beyond Code Coverage
 
-## Lab 3 — Fast & Reliable Builds
+## Full-Day Workshop
+
+_Spring I/O Conference Workshop 13.04.2026_
 
 Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil](https://x.com/rieckpil)
 
@@ -23,166 +25,487 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ## Discuss Exercises from Lab 2
 
-- WireMock stubbing — what tripped you up?
-- `MOCK` vs `RANDOM_PORT` — which did you pick and why?
+- Integration test including WireMock stubbing: `ExerciseCreateBookWireMockIT`
+  - Setup WireMock 
+  - Stub the HTTP call to OpenLibrary with a canned response
+  - Verify the created book and clean up after the test
 
 ---
+
+## Recap of Lab 2
+
+- TBD
+
+---
+
+![bg right:33%](assets/lab-3-speed.jpg)
+
 
 # Lab 3
 
-## Spring Test Context Caching & Parallel Execution
+## Accelerating Spring Boot Build Times
 
 ---
 
-## Build Time: The Hidden Tax
+## Why Do Fast Builds Matter?
 
-50 integration tests × 8 s context startup = **400 s wasted** if every test starts a fresh context.
+Every minute you shave off the feedback loop compounds: across developers, across days, across every commit that still has to be shipped this quarter.
 
-Devs stop running tests locally. CI gets slower. Confidence drops.
+- Short build times unlock **trunk-based development** and multiple deploys per day
+- Each merged PR moves value to users sooner - not next week, not next sprint
+- Accelerate metrics (DORA) are **dominated by lead time**, and lead time is dominated by pipeline duration
+- Fast CI turns "release day" into a non-event - just another deploy
+
+---
+
+## The Cognitive Case: Stay In Flow
+
+- Context switching is the silent productivity killer - every interruption costs **~23 minutes** to recover from
+- A slow build is an interruption: you open Slack, read an article, lose the mental model
+- Fast builds keep the problem **fresh in your head** - you finish what you started
+- Bug fixes stay small because you debug while you still remember what you changed
+
+---
+
+## The Quality Case: Quicker Bug Fixes
+
+- Fast builds are run **more often**, so bugs are caught closer to the commit that introduced them
+- Developers who trust the test suite **actually run it** before pushing - slow suites train people to skip it
+- Production incidents get shorter MTTR because the fix→verify→deploy loop is seconds, not hours
+
+---
+
+## The Hidden Multiplier
+
+> 10 developers × 20 pushes/day × 5 min saved per run
+> **= ~16 engineering hours reclaimed every single day**
+
+That's a full extra engineer's worth of focused work - for free - just by investing in your test infrastructure.
+
+**Lab 3 is about capturing that dividend.**
+
+---
+
+## What to Avoid: Scaling the Build Time linearly with Each New Tests
+
+![w:720 center](assets/build-time-growth.png)
+
+---
+
+## The Root Cause
+
+Every `@SpringBootTest` context startup costs **multiple seconds**:
+
+- Testcontainers (PostgreSQL) starts → JDBC connection pool opens
+- WireMock starts and stubs are registered
+- Flyway runs migration scripts
+- Spring wires all beans
+
+If 10 test classes each create a **unique** context → **10 cold starts**
+
+---
+
+
+# Build Time Optimization #1: Spring Test Context Caching
 
 ---
 
 ## The Solution: Spring Test Context Caching
 
-The Spring `TestContextManager` caches `ApplicationContext` instances across test classes — keyed by their **configuration**.
+- Built into Spring Test - available automatically via `spring-boot-starter-test`
+- Caches a started `ApplicationContext` by a **cache key**
+- Cache is per-JVM process (not shared across forks or CI agents)
 
-If two tests share the same configuration, they share the same context.
+Example of speed improvement:
 
----
+![](assets/context-cache-improvements.png)
 
-## What Counts as "Same Configuration"?
-
-The cache key includes:
-
-- `@SpringBootTest` `classes`, `properties`, `args`
-- `@ActiveProfiles`, `@TestPropertySource`
-- `@MockitoBean` / `@MockitoSpyBean`
-- `@DynamicPropertySource` values
-- `ContextCustomizer`s registered by Spring Boot
-
-**Anything different → new context → new startup cost.**
 
 ---
 
-## Context Cache Killers
-
-- Sprinkling `@MockitoBean` differently across tests
-- Per-test `@TestPropertySource` with unique values
-- `@DirtiesContext` (almost always overkill)
-- Random ports baked into properties
-- Different combinations of `@Import` / `@ContextConfiguration`
+![](assets/caching-explained-00.png)
 
 ---
 
-## `@DirtiesContext` — Use With Caution
-
-It **evicts** the context from the cache. Every subsequent test rebuilds.
-
-If you need it, ask: *can I reset state in `@AfterEach` instead?*
+![](assets/caching-explained-01.png)
 
 ---
 
-## The Solution: Unify Context Configuration
+![](assets/caching-explained-02.png)
+
+---
+
+### How the Cache is Built
+
+```java
+// DefaultContextCache.java
+private final Map<MergedContextConfiguration, ApplicationContext> contextMap =
+  Collections.synchronizedMap(new LruCache(32, 0.75f));
+```
+
+The following information is part of the Cache Key (`MergedContextConfiguration`):
+
+- activeProfiles (`@ActiveProfiles`)
+- contextInitializersClasses (`@ContextConfiguration`)
+- propertySourceLocations (`@TestPropertySource`)
+- propertySourceProperties (`@TestPropertySource`)
+- contextCustomizer (`@MockitoBean`, `@MockBean`, `@DynamicPropertySource`, ...)
+- etc.
+
+---
+
+### Spring's X-Ray: Building the `MergedContextConfiguration`
+
+Before starting any context, Spring performs an **X-ray scan** of the test class:
+
+1. Walks the class hierarchy and collects every context customisation point:
+  - annotations (`@SpringBootTest`, `@ActiveProfiles`, `@TestPropertySource`)
+  - `@ContextConfiguration` initializers
+  - `@MockitoBean` / `@MockBean` definitions
+  - `@DynamicPropertySource` methods
+  - ...
+2. Merges all collected metadata into a single **`MergedContextConfiguration`** object
+3. Computes the **`hashCode`** of that object → this is the cache key
+
+---
+
+```text
+Test class
+    │
+    ▼ 
+MergedContextConfiguration {
+  testClass, locations, classes,
+  activeProfiles, propertyValues,
+  contextInitializers, contextCustomizers   ← every @MockitoBean lands here
+}
+    │
+    ▼  hashCode() / equals()
+    
+Cache hit? → reuse context ✅
+Cache miss? → start new context and store it 🆕
+```
+
+**Consequence:** even a single extra `@MockitoBean` changes the hash → **new context**.
+
+---
+
+
+
+###  Detect Context Restarts - Visually
+
+![](assets/context-caching-hints.png)
+
+
+---
+
+### Detect Context Restarts - with Logs
+
+![](assets/context-caching-logs.png)
+
+---
+
+### Detect Context Restarts - with Tooling
+
+![center](assets/spring-test-profiler-logo.png)
+
+An [open-source Spring Test utility](https://github.com/PragmaTech-GmbH/spring-test-profiler) that provides visualization and insights for Spring Test execution, with a focus on Spring context caching statistics.
+
+**Overall goal**: Identify optimization opportunities in your Spring Test suite to speed up your builds and ship to production faster and with more confidence.
+
+---
+
+## Use `@DirtiesContext` with Caution
+
+Developers tend to consult AI/StackOverflow for integration test issues and often copy advice from the internet without knowing the implications:
 
 ```java
 @SpringBootTest
-@Import(TestcontainersConfig.class)
-@ActiveProfiles("test")
-public abstract class SharedIntegrationTestBase { }
+@DirtiesContext
+// this instructs Spring to remove the context from the cache
+// and rebuild a new context on every request
+public abstract class AbstractIntegrationTest {
+
+}
 ```
 
-Subclass it everywhere. One context, infinite reuse.
+The setup above will **disable** the context caching feature and slow down the builds significantly!
 
 ---
+
+## Other Context Cache Killers
+
+| Pattern | Reason |
+|---|---|
+| `@DirtiesContext` | Destroys the context — forces cold start |
+| `@MockitoBean` | Replaces a bean → different cache key |
+| `@ActiveProfiles("test")` | Adds a profile → different key |
+| `@TestPropertySource(properties = "x=1")` | Extra property → different key |
+| `@SpringBootTest(properties = "x=1")` | Extra property → different key |
+
+------
 
 ## Sliced Tests Still Matter
 
-A `@WebMvcTest` or `@DataJpaTest` is a **smaller** context that boots faster *and* caches independently. Use slices when you don't need the full stack.
+- Spring also caches sliced contexts.
+- A `@WebMvcTest` or `@DataJpaTest` is a **smaller** context that boots faster *and* caches independently. 
+- Use slices when you don't need the full stack.
 
 ---
 
-## New in Spring Framework 7: Pausing Contexts
+### New in Spring Framework 7: Pausing Contexts
 
-Idle contexts can be **paused** to reclaim memory while keeping the cache key valid. Resume on demand.
+See Release Notes von [Spring Framework 7](https://spring.io/blog/2025/07/17/spring-framework-7-0-0-M7-available-now).
 
-→ Larger cache, lower memory ceiling.
+> Pausing of Test Application Contexts
+>
+> The Spring TestContext framework is caching application context instances within test suites for faster runs. As of Spring Framework 7.0, we now pause test application contexts when they're not used.
+>
+> This means an application context stored in the context cache will be stopped when it is no longer actively in use and automatically restarted the next time the context is retrieved from the cache.
+
 
 ---
 
-# Test Parallelization
+# Build Time Optimization #2: Test Parallelization
 
 ---
 
-## Approach 1: Maven `forkCount` — Process Level
+## Test Parallelization
+
+**Goal**: Reduce build time by running tests concurrently
+
+Two independent mechanisms - they work at different levels:
+
+| Mechanism                                             | Level | Isolation |
+|-------------------------------------------------------|---|---|
+| Maven Surefire/Failsafe `forkCount` (same for Gradle) | JVM processes | Separate heaps, class loaders |
+| JUnit Jupiter parallel execution                      | Threads within one JVM | Shared heap, shared class loader |
+
+These are **complementary** - you can (and should) use both together.
+
+---
+
+## Approach 1: Maven `forkCount` - Process Level
+
+Splits tests across multiple **separate JVM processes**:
 
 ```xml
-<configuration>
-  <forkCount>1C</forkCount>
-  <reuseForks>true</reuseForks>
-</configuration>
+<plugin>
+  <artifactId>maven-surefire-plugin</artifactId>
+  <configuration>
+    <forkCount>1C</forkCount>     <!-- 1 JVM per CPU core -->
+    <reuseForks>true</reuseForks> <!-- Reuse JVMs across test classes -->
+  </configuration>
+</plugin>
 ```
 
-- One JVM **per CPU core**
-- Each fork has its **own** context cache
-- Strong isolation, more memory
+- `forkCount=1` - default: one JVM for all tests
+- `forkCount=2` - two JVMs running in parallel
+- `forkCount=1C` - one JVM per available CPU core (dynamic)
+
+> **Maven Failsafe** works the same way for `*IT.java` integration tests.
 
 ---
 
-## Approach 2: JUnit Jupiter Parallel — Thread Level
+## Approach 2: JUnit Jupiter Parallel - Thread Level
 
-`src/test/resources/junit-platform.properties`:
+Runs test **classes** (and/or methods) concurrently on threads within one JVM:
 
 ```properties
+# src/test/resources/junit-platform.properties
 junit.jupiter.execution.parallel.enabled = true
 junit.jupiter.execution.parallel.mode.default = same_thread
 junit.jupiter.execution.parallel.mode.classes.default = concurrent
 ```
 
-- Multiple threads in **one** JVM
-- **Shares** the context cache
-- Cheaper memory, but you must write thread-safe tests
+Or configure directly in Maven Surefire:
+
+```xml
+<properties>
+  <configurationParameters>
+    junit.jupiter.execution.parallel.enabled = true
+    junit.jupiter.execution.parallel.mode.default = same_thread
+    junit.jupiter.execution.parallel.mode.classes.default = concurrent
+  </configurationParameters>
+</properties>
+```
 
 ---
 
-## Unit Tests: Writing Parallel-Safe Code
-
-- ❌ Static mutable state
-- ❌ `System.setProperty(...)`
-- ❌ Shared temp files with fixed names
-- ✅ `@TempDir`, fresh fixtures, local mocks
+![bg w:800 h:900 center](assets/parallel-testing.svg)
 
 ---
 
-## Integration Tests: What to AVOID
+## JUnit Jupiter Parallelization Strategies Compared
 
-- Hard-coded ports
-- Shared rows with fixed IDs
-- `@DirtiesContext` in parallel mode (race conditions)
-- Mutating `@MockitoBean`s across threads
+| Strategy | `mode.classes.default` | `mode.default` | Effect |
+|---|---|---|---|
+| **Safest**  | `concurrent` | `same_thread` | Classes in parallel, methods sequential |
+| **Fastest**  | `concurrent` | `concurrent` | Everything in parallel |
+| **Sequential**  | `same_thread` | `same_thread` | Fully sequential |
 
----
-
-## Integration Tests: The Safe Pattern
-
-- One **shared** context, **isolated** data per test
-- Random IDs / per-test schemas
-- Singleton Testcontainers shared across the JVM
-- Cleanup in `@AfterEach`, not via `@DirtiesContext`
-
----
-
-## Singleton Testcontainers Pattern
+Override per class with `@Execution`:
 
 ```java
-public abstract class AbstractIT {
-  static final PostgreSQLContainer POSTGRES =
-      new PostgreSQLContainer("postgres:16-alpine");
-  static { POSTGRES.start(); }
+@Execution(ExecutionMode.CONCURRENT)  // Override global setting for this class
+class DiscountServiceTest { ... }
+```
+
+---
+
+**Rules for parallel-safe unit tests:**
+- No static mutable fields
+- No shared service instances across tests
+- No `ThreadLocal` usage without guaranteed cleanup
+- Don't depend on the test exection order
+
+---
+
+## Integration Tests: Different Challenges
+
+Integration tests share infrastructure: database, WireMock, caches.
+
+**The additional risks with parallel integration tests:**
+
+- Two tests `INSERT` the same ISBN → unique constraint violation
+- One test `DELETE`s a record another test expects to find
+- `count()` assertions return unexpected results from other tests' inserts
+- Testcontainers port conflicts when each class starts its own container
+
+**The approach:** parallelize at the **class** level only (`mode.default = same_thread`), and enforce strong data isolation within each class.
+
+---
+
+## Parallelization: Unit vs. Integration Summary
+
+| | Unit Tests | Integration Tests |
+|---|---|---|
+| Recommended tool | JUnit parallel + Surefire forks | JUnit class-level parallel |
+| Safe `mode.default` | `concurrent` | `same_thread` |
+| Safe `mode.classes` | `concurrent` | `concurrent` |
+| Key isolation | No shared mutable state | `@Transactional` + unique data |
+| `forkCount` | Very beneficial | Be careful with Testcontainers |
+| Typical speed gain | 2–4× | 1.5–2× |
+
+**Always measure! Run with and without, compare time.**
+
+---
+
+# Build Time Optimization #3: Correct Usage of Testcontainers
+
+---
+
+## The Naive Approach (and Why It's Slow)
+
+```java
+// ❌ Instance @Container — starts AND stops with every test class
+@Testcontainers
+@SpringBootTest
+class BookControllerIT {
+
+  @Container
+  PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine");
 }
 ```
 
-One container per JVM, shared by **every** test that extends the base.
-Combined with `forkCount=1C` you get *N* containers total — predictable.
+With 10 integration test classes → **10 container starts × ~5s each = 50s overhead**
+
+---
+
+## The Singleton Pattern: Static @Bean
+
+Spring Boot 3.1+ -   use a `@TestConfiguration` with a `static` factory method:
+
+```java
+@TestConfiguration(proxyBeanMethods = false)
+public class LocalDevTestcontainerConfig {
+
+  // ✅ static method — container created once, shared across all contexts
+  // ✅ @ServiceConnection — no @DynamicPropertySource boilerplate needed
+  @Bean
+  @ServiceConnection
+  static PostgreSQLContainer<?> postgres() {
+    return new PostgreSQLContainer<>("postgres:16-alpine")
+      .withDatabaseName("testdb")
+      .withUsername("test")
+      .withPassword("test");
+  }
+}
+```
+
+Use it in every integration test: `@Import(LocalDevTestcontainerConfig.class)`
+
+---
+
+
+## The Hidden Danger: Connection Pool Exhaustion
+
+Each Spring context has its **own HikariCP connection pool**.
+
+```text
+PostgreSQL max_connections = 100  (default)
+
+Context A  →  HikariPool (10 connections each)  ─┐
+Context B  →  HikariPool (10 connections each)   ├──▶ 1 Postgres container
+Context C  →  HikariPool (10 connections each)   │    (30 connections used)
+Context D  →  HikariPool (10 connections each)  ─┘
+
+10th context starts → FATAL: sorry, too many clients already
+```
+
+This is why context caching and parallelization work **together** - fewer contexts means fewer connection pools.
+
+---
+
+## Preventing Connection Pool Exhaustion
+
+**Option 1 - Maximize context reuse**:
+
+→ One `SharedIntegrationTestBase` → one context → one pool
+
+**Option 2 - Reduce pool size per context:**
+
+```yaml
+spring:
+  datasource:
+    hikari:
+      maximum-pool-size: 5   # ↓ down from default 10
+```
+
+**Option 3 - Raise PostgreSQL's max_connections:**
+
+```java
+new PostgreSQLContainer("postgres:16-alpine")
+  .withCommand("postgres", "-c", "max_connections=200");
+```
+
+---
+
+## Testcontainers Reuse Mode
+
+Skip container startup entirely between local test runs:
+
+```java
+static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+  .withReuse(true);  // ← Surviving container is reused on next run
+```
+
+Requires `~/.testcontainers.properties`:
+
+```properties
+testcontainers.reuse.enable=true
+```
+
+**Implications:**
+- Container keeps its state between runs → good test isolation (`@Transactional`) is critical
+
+---
+
+## Further Testcontainers Optimization Tips
+
+- (CI-relevant) Pre-pull images to avoid rate limits and cold starts, make sure the pulled image is cached in the CI environment
+- Use custom Docker images to e.g., pre-create the database schema, reducing startup time
+- Start multiple Docker containers in parallel `Startables.deepStart(postgres, kafka).join();`
+- Consider [Zonky](https://github.com/zonkyio/embedded-database-spring-test) Embedded Database
 
 ---
 
@@ -190,17 +513,6 @@ Combined with `forkCount=1C` you get *N* containers total — predictable.
 
 See `labs/lab-3/README.md`.
 
-1. Find and fix the **context cache killers** in `labs/lab-3` — collect cache stats before and after
-2. Enable parallel execution and measure the speedup
-3. Convert the per-class containers to the singleton pattern
-
----
-
-## Recap
-
-- One context, reused = the single biggest test-suite speedup
-- Mind the cache key — small differences are expensive
-- Pick *one* parallelization model and make tests safe for it
-- Singleton Testcontainers + shared context = fast and reliable
-
-**Next:** mutation testing — are your tests actually catching bugs?
+1. Analyze the test suite and identify how many contexts are created
+2. Identify the context cache killers in the test suite and understand why they break caching
+3. Reduce the number of contexts to one by applying the `SharedIntegrationTestBase` pattern and removing cache killers

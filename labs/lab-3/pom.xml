@@ -62,7 +62,7 @@
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-resolver-dns-native-macos</artifactId>
-      <version>4.2.12.Final</version>
+      <classifier>osx-aarch_64</classifier>
       <scope>runtime</scope>
     </dependency>
 
@@ -142,6 +142,13 @@
       <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>digital.pragmatech.testing</groupId>
+      <artifactId>spring-test-profiler</artifactId>
+      <version>0.1.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -155,6 +162,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+          <forkCount>1</forkCount>
         </configuration>
       </plugin>
       <plugin>
