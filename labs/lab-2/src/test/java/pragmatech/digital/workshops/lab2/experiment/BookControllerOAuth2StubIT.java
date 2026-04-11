@@ -17,6 +17,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import pragmatech.digital.workshops.lab2.config.MailpitContainer;
 import pragmatech.digital.workshops.lab2.entity.Book;
 import pragmatech.digital.workshops.lab2.repository.BookRepository;
 
@@ -50,6 +51,8 @@ class BookControllerOAuth2StubIT {
   @ServiceConnection
   static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
 
+  static final MailpitContainer MAILPIT = new MailpitContainer();
+
   static final WireMockServer WIREMOCK =
     new WireMockServer(WireMockConfiguration.options().dynamicPort());
 
@@ -62,6 +65,7 @@ class BookControllerOAuth2StubIT {
   @BeforeAll
   static void startStubs() {
     WIREMOCK.start();
+    MAILPIT.start();
     oauth2Stubs = new OAuth2Stubs(WIREMOCK, "workshop");
     oauth2Stubs.stubOpenIdConfiguration();
   }
@@ -74,6 +78,8 @@ class BookControllerOAuth2StubIT {
   @DynamicPropertySource
   static void resourceServerProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri", oauth2Stubs::issuerUri);
+    registry.add("spring.mail.host", MAILPIT::getHost);
+    registry.add("spring.mail.port", MAILPIT::getSmtpPort);
     registry.add("book.metadata.api.url", WIREMOCK::baseUrl);
   }
 

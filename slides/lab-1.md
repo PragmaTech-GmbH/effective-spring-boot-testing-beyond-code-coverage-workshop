@@ -378,6 +378,8 @@ Run with `./mvnw spring-boot:test-run`
 # Time For Some Exercises
 ## Lab 1
 
+See `labs/lab-1/README.md`.
+
 - Set up the [repository](https://github.com/PragmaTech-GmbH/effective-spring-boot-testing-beyond-code-coverage-workshop) locally
 - Work locally or use GitHub Codespaces (120 hours/month free)
 - Fore Codespaces, pick at least 4-Cores (16 GB RAM) and region `Europe West`

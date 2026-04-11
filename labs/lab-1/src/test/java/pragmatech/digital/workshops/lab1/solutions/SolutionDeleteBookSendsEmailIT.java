@@ -3,7 +3,6 @@ package pragmatech.digital.workshops.lab1.solutions;
 import java.time.Duration;
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +16,11 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.client.RestClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-import pragmatech.digital.workshops.lab1.config.AbstractOAuth2IntegrationTest;
 import pragmatech.digital.workshops.lab1.entity.Book;
 import pragmatech.digital.workshops.lab1.experiment.KeycloakContainer;
 import pragmatech.digital.workshops.lab1.experiment.MailpitContainer;
 import pragmatech.digital.workshops.lab1.repository.BookRepository;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

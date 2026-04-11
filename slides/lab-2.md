@@ -230,10 +230,11 @@ wireMockServer.stopRecording();
 
 ## Replacing Keycloak with WireMock for a simulated IdP
 
-- Generate an RSA key pair in the test
-- Stub `/.well-known/openid-configuration` on a WireMock server
-- Sign tokens locally — the `NimbusJwtDecoder` fetches & caches our public key
-- Faster than Keycloak (no container boot), but not exercising a real IdP
+- Generate an RSA key pair (public key to verify, private key to sign) in the test
+- Stub the necessary OAuth 2 discovery call (e.g. `/.well-known/openid-configuration`) with WireMock
+- Sign tokens locally - the `NimbusJwtDecoder` fetches & caches our public key
+- Faster than Keycloak (no container), but not exercising a real IdP
+- Introducing the concept of stub classes to outsource stubbing logic (see `OAuth2Stubs`)
 
 ---
 
@@ -261,9 +262,6 @@ We can control the web environment of our context setup with `@SpringBootTest`:
 | `RANDOM_PORT` | Real embedded servlet container (e.g. Tomcat) | ✅ | `WebTestClient` / `RestTestClient` / `TestRestTemplate` |
 | `DEFINED_PORT` | Real embedded container (e.g. Tomcat)                          | ✅ | `WebTestClient` / `RestTestClient`/ `TestRestTemplate`  |
 
-Two variants matter for nearly every integration test: **`MOCK`** and **`RANDOM_PORT`**.
-
-
 ---
 
 ## Variant 1: `MOCK` - No Real Servlet Container, No Real HTTP
@@ -274,7 +272,7 @@ Two variants matter for nearly every integration test: **`MOCK`** and **`RANDOM_
 ```java
 @SpringBootTest
 @AutoConfigureMockMvc
-class SampleIT {
+class BookControllerMockMvcIT {
 
   @Autowired
   private MockMvc mockMvc;
@@ -288,13 +286,20 @@ class SampleIT {
 
 ---
 
+## Benefits of `MOCK` Mode
+
+- Both the test and tha controller code run in the same thread, so `@Transactional` tests will roll back changes made by the controller
+- Faster than `RANDOM_PORT` since no real HTTP server is started
+- We don't need our Keycloak as we can use Spring Security Test (e.g. `SecurityMockMvcRequestPostProcessors.jwt()`) to simulate authenticated requests
+
+
+---
+
 ## Variant 2: `RANDOM_PORT` - Entire Context with Servlet Container
 
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient // choose one
 @AutoConfigureTestRestTemplate // choose one
-@AutoConfigureRestTestClient // choose one
 class SampleIT {
 
   @LocalServerPort
@@ -309,66 +314,14 @@ class SampleIT {
   }
 }
 ```
----
-
-## How to Provide a Valid JWT for an Integration Test
-
-Three options:
-
-1. **`SecurityMockMvcRequestPostProcessors.jwt()`** — only with MockMvc (`MOCK` mode)
-2. **`@WithMockUser` / `@WithMockJwtAuth`** — annotation-driven
-3. **Real signed JWT** — sign with a test key, point `issuer-uri` at WireMock
-
-We'll use option 3 for **`RANDOM_PORT`** integration tests.
-
----
-
-
-
-## The Two Modes of `@SpringBootTest`
-
-| Mode                                  | Servlet | HTTP | Use with                    |
-|---------------------------------------|---------|------|-----------------------------|
-| `webEnvironment = MOCK` *(default)*   | Mock    | No   | `MockMvc`                   |
-| `webEnvironment = RANDOM_PORT`        | Real    | Yes  | `TestRestTemplate` / `WebTestClient` |
-
-`MOCK` is faster and lets `@Transactional` rollback work.
-`RANDOM_PORT` is closer to production — needed for filters, async, real auth flows.
-
----
-
-## `@Transactional` and `RANDOM_PORT`
-
-⚠️ With `RANDOM_PORT`, the test thread and the request thread are **different**. Rollback in the test thread will **not** roll back data committed by the controller.
-
-Use `JdbcTemplate` cleanups or **Testcontainers + database-per-test** instead.
-
----
-
-## Customising the Test Context
-
-- `@TestConfiguration` — add/replace beans for one test
-- `@MockitoBean` — replace a bean with a Mockito mock (Spring Boot 3.4+)
-- `@ActiveProfiles("test")` — switch profiles
-- `@DynamicPropertySource` — late-bound properties from containers
 
 ---
 
 # Time For Some Exercises
+## Lab 2
 
 See `labs/lab-2/README.md`.
 
-1. Write a full integration test for `POST /api/books` with WireMock stubbing OpenLibrary
-2. Provide a valid JWT for the request
-3. Pick `MOCK` vs `RANDOM_PORT` — and justify your choice
-
----
-
-## Recap
-
-- WireMock = your HTTP boundary, controllable and offline
-- Three ways to bring auth into a test — pick by mode
-- `MOCK` vs `RANDOM_PORT`: faster vs more realistic
-- `@Transactional` is **not** a magic cleanup for `RANDOM_PORT`
-
-**Next:** make all this *fast*.
+1. See `ExerciseCreateBookWireMockIT`
+2. Write a full integration test for `POST /api/books` with WireMock stubbing OpenLibrary
+3. Use `@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)` to start the entire context with a real HTTP server

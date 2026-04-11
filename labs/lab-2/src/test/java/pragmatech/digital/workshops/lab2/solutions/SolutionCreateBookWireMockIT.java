@@ -2,27 +2,24 @@ package pragmatech.digital.workshops.lab2.solutions;
 
 import java.time.LocalDate;
 
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-import pragmatech.digital.workshops.lab2.client.OpenLibraryApiClient;
 import pragmatech.digital.workshops.lab2.config.MailpitContainer;
+import pragmatech.digital.workshops.lab2.experiment.OAuth2Stubs;
 import pragmatech.digital.workshops.lab2.repository.BookRepository;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -30,35 +27,38 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Solution — Integration test for {@code POST /api/books} with a WireMock-stubbed
- * OpenLibrary API.
+ * OpenLibrary API, exercised over a <b>real HTTP stack</b>.
  *
- * <p>Key moving parts:
+ * <p>This is the RANDOM_PORT flavour of the same scenario tested by
+ * {@code BookControllerMockMvcIT}. Use it to compare the two approaches:
+ *
  * <ul>
- *   <li>A real PostgreSQL container via {@code @ServiceConnection}.</li>
- *   <li>A {@link WireMockExtension} serving as the fake OpenLibrary upstream, its
- *       dynamic base URL injected into {@code book.metadata.api.url} through
- *       {@code @DynamicPropertySource}.</li>
- *   <li>A {@link TestConfiguration} that overrides the default
- *       {@code FallbackOpenLibraryApiClient} bean with a real
- *       {@link OpenLibraryApiClient} (marked {@code @Primary}) so the service
- *       actually hits WireMock.</li>
- *   <li>A JWT forged with {@code jwt().authorities(...)} carrying the
- *       {@code SCOPE_books:write} authority required by {@code SecurityConfig} —
- *       no Keycloak needed.</li>
+ *   <li><b>Real Tomcat</b> — {@code webEnvironment = RANDOM_PORT} starts the
+ *       embedded servlet container on a random port. Every request goes over a
+ *       real TCP socket, through the real Tomcat connector, the real Spring
+ *       Security filter chain, and a real {@link org.springframework.security.oauth2.jwt.NimbusJwtDecoder}
+ *       that actually fetches JWKS from WireMock on first use.</li>
+ *
+ *   <li><b>No {@code @Transactional} rollback</b> — the server runs on its own
+ *       thread with its own transaction. The test thread can't roll it back,
+ *       so we clean up explicitly via {@link #cleanup()} after every test.
+ *       Forgetting this would leak rows between tests. This is the big
+ *       operational difference from the MockMvc mode.</li>
+ *
+ *   <li><b>Real signed JWT, no Keycloak</b> — {@link OAuth2Stubs} piggybacks on
+ *       the same WireMock instance to serve the OIDC discovery document and the
+ *       JWKS endpoint. Tests mint JWTs with {@code oauth2Stubs.signedJwt(...)}
+ *       and pass them in the {@code Authorization} header exactly like a real
+ *       client would. The JWKS response is cached by NimbusJwtDecoder after the
+ *       first token, so subsequent calls stay offline.</li>
  * </ul>
  */
-@SpringBootTest
-@AutoConfigureMockMvc
-@Import(SolutionCreateBookWireMockIT.RealOpenLibraryClientConfig.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureRestTestClient
 class SolutionCreateBookWireMockIT {
 
   private static final String ISBN = "978-0132350884";
@@ -66,32 +66,56 @@ class SolutionCreateBookWireMockIT {
   @ServiceConnection
   static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
 
-  protected static final MailpitContainer MAILPIT = new MailpitContainer();
+  static final MailpitContainer MAILPIT = new MailpitContainer();
 
+  static final WireMockServer WIREMOCK =
+    new WireMockServer(WireMockConfiguration.options().dynamicPort());
 
-  @RegisterExtension
-  static final WireMockExtension WIREMOCK = WireMockExtension.newInstance()
-    .options(wireMockConfig().dynamicPort())
-    .build();
+  static OAuth2Stubs oauth2Stubs;
 
   static {
     POSTGRES.start();
     MAILPIT.start();
   }
 
+  @BeforeAll
+  static void startStubs() {
+    WIREMOCK.start();
+    oauth2Stubs = new OAuth2Stubs(WIREMOCK, "workshop");
+    oauth2Stubs.stubOpenIdConfiguration();
+  }
+
+  @AfterAll
+  static void stopStubs() {
+    WIREMOCK.stop();
+  }
+
   @DynamicPropertySource
-  static void overrideOpenLibraryBaseUrl(DynamicPropertyRegistry registry) {
+  static void overrideProperties(DynamicPropertyRegistry registry) {
     registry.add("book.metadata.api.url", WIREMOCK::baseUrl);
+    registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri",
+      () -> oauth2Stubs.issuerUri());
   }
 
   @Autowired
-  MockMvc mockMvc;
+  RestTestClient restTestClient;
 
   @Autowired
   BookRepository bookRepository;
 
+  /**
+   * RANDOM_PORT commits are real: the embedded Tomcat runs the controller on
+   * its own thread with its own transaction, so nothing the test's
+   * {@code @Transactional} annotation does would roll those writes back.
+   * Explicit cleanup keeps tests independent.
+   */
+  @AfterEach
+  void cleanup() {
+    bookRepository.deleteAll();
+  }
+
   @Test
-  void shouldCreateBookAndEnrichMetadataFromOpenLibrary() throws Exception {
+  void shouldCreateBookAndEnrichMetadataFromOpenLibrary() {
     WIREMOCK.stubFor(get(urlPathEqualTo("/api/books"))
       .withQueryParam("bibkeys", equalTo(ISBN))
       .withQueryParam("jscmd", equalTo("data"))
@@ -116,13 +140,23 @@ class SolutionCreateBookWireMockIT {
       }
       """.formatted(ISBN, LocalDate.now().plusDays(7));
 
-    mockMvc.perform(post("/api/books")
-        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_books:write")))
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(body))
-      .andExpect(status().isCreated())
-      .andExpect(header().exists("Location"));
+    // Mint a real, RS256-signed JWT whose public key half is published through
+    // our stubbed JWKS endpoint. NimbusJwtDecoder will fetch the JWKS once and
+    // cache it for the rest of the run.
+    String token = oauth2Stubs.signedJwt("alice", "books:write");
 
+    restTestClient.post()
+      .uri("/api/books")
+      .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+      .contentType(MediaType.APPLICATION_JSON)
+      .body(body)
+      .exchange()
+      .expectStatus().isCreated()
+      .expectHeader().exists("Location");
+
+    // The server has already committed by the time exchange() returns, so
+    // this repository call is reading COMMITTED state from a different
+    // transaction — a key contrast with the MockMvc/@Transactional flow.
     assertThat(bookRepository.findByIsbn(ISBN))
       .hasValueSatisfying(book -> {
         assertThat(book.getTitle()).isEqualTo("Clean Code");
@@ -134,35 +168,5 @@ class SolutionCreateBookWireMockIT {
 
     WIREMOCK.verify(1, getRequestedFor(urlPathEqualTo("/api/books"))
       .withQueryParam("bibkeys", equalTo(ISBN)));
-
-    bookRepository.deleteAll();
-  }
-
-  /**
-   * Swaps the default {@code FallbackOpenLibraryApiClient} bean for a real
-   * {@link OpenLibraryApiClient} so the service actually performs HTTP calls
-   * against the WireMock-stubbed upstream.
-   */
-  @TestConfiguration
-  static class RealOpenLibraryClientConfig {
-
-    @Bean
-    @Primary
-    OpenLibraryApiClient openLibraryApiClient(WebClient openLibraryWebClient) {
-      return new OpenLibraryApiClient(openLibraryWebClient);
-    }
-
-    /**
-     * Placeholder decoder so the OAuth2 resource server can wire up without a
-     * real issuer. The {@code jwt()} MockMvc post-processor bypasses this
-     * decoder entirely at request time.
-     */
-    @Bean
-    JwtDecoder jwtDecoder() {
-      return token -> {
-        throw new UnsupportedOperationException(
-          "Not used — MockMvc jwt() post-processor builds the Authentication directly");
-      };
-    }
   }
 }
