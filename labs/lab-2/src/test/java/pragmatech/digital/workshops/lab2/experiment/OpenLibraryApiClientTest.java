@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *
  * <p>Demonstrates the minimum you need to stub an HTTP collaborator:
  * <ul>
- *   <li>{@link WireMockExtension} — JUnit 5 extension that boots a WireMock server
+ *   <li>{@link WireMockExtension} - JUnit 5 extension that boots a WireMock server
  *       on a random port for the test class and shuts it down afterwards.</li>
  *   <li>{@code stubFor(...)} — define what the fake upstream should return for a
  *       given request shape.</li>
@@ -78,6 +78,25 @@ class OpenLibraryApiClientTest {
     assertThat(result.get().author()).isEqualTo("Robert C. Martin");
     assertThat(result.get().thumbnailUrl())
       .isEqualTo("https://covers.openlibrary.org/b/id/8085499-S.jpg");
+  }
+
+  @Test
+  void shouldReturnMetadataWhenApiReturnsValidResponseWithFileServinf() {
+    String isbn = "9780132350884";
+
+    wireMockServer.stubFor(
+      get(urlPathEqualTo("/api/books"))
+        .willReturn(aResponse()
+          .withHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+          .withBodyFile(isbn + "-success.json")));
+
+    Optional<BookMetadata> result = cut.fetchMetadataForIsbn(isbn);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().title()).isEqualTo("Clean Code");
+    assertThat(result.get().author()).isEqualTo("Robert C. Martin");
+    assertThat(result.get().thumbnailUrl())
+      .isEqualTo("https://covers.openlibrary.org/b/id/15126503-S.jpg");
   }
 
   @Test

@@ -271,7 +271,7 @@ class ContainerLogsTest {
   private static final Logger log = LoggerFactory.getLogger(ContainerLogsTest.class);
 
   @Container
-  static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16-alpine")
+  static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
     .withLogConsumer(new Slf4jLogConsumer(log)); // ← All container output → SLF4J
 
   @Test
@@ -287,7 +287,7 @@ class ContainerLogsTest {
 **Add to `LocalDevTestcontainerConfig`** to always stream container logs during test runs:
 
 ```java
-return new PostgreSQLContainer<>("postgres:16-alpine")
+return new PostgreSQLContainer("postgres:16-alpine")
   .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("postgres")));
 ```
 

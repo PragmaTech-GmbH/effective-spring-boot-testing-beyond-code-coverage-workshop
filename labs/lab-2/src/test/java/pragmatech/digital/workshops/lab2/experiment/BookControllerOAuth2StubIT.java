@@ -14,7 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * Experiment — a BookController integration test that skips Keycloak entirely.
@@ -45,7 +45,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 class BookControllerOAuth2StubIT {
 
   @ServiceConnection
-  static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+  static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
 
   static final WireMockServer WIREMOCK =
     new WireMockServer(WireMockConfiguration.options().dynamicPort());
@@ -71,6 +71,7 @@ class BookControllerOAuth2StubIT {
   @DynamicPropertySource
   static void resourceServerProperties(DynamicPropertyRegistry registry) {
     registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri", oauth2Stubs::issuerUri);
+    registry.add("book.metadata.api.url", WIREMOCK::baseUrl);
   }
 
   @Autowired

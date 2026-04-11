@@ -14,7 +14,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import pragmatech.digital.workshops.lab3.client.OpenLibraryApiClient;
 
 /**
@@ -67,8 +67,8 @@ import pragmatech.digital.workshops.lab3.client.OpenLibraryApiClient;
 public abstract class AbstractIntegrationTest {
 
   @ServiceConnection
-  protected static final PostgreSQLContainer<?> POSTGRES =
-    new PostgreSQLContainer<>("postgres:16-alpine");
+  protected static final PostgreSQLContainer POSTGRES =
+    new PostgreSQLContainer("postgres:16-alpine");
 
   protected static final WireMockServer WIREMOCK =
     new WireMockServer(WireMockConfiguration.options().dynamicPort());

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
@@ -18,11 +19,10 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import pragmatech.digital.workshops.lab2.client.OpenLibraryApiClient;
-import pragmatech.digital.workshops.lab2.entity.Book;
+import pragmatech.digital.workshops.lab2.experiment.MailpitContainer;
 import pragmatech.digital.workshops.lab2.repository.BookRepository;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
@@ -64,7 +64,10 @@ class SolutionCreateBookWireMockIT {
   private static final String ISBN = "978-0132350884";
 
   @ServiceConnection
-  static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+  static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
+
+  protected static final MailpitContainer MAILPIT = new MailpitContainer();
+
 
   @RegisterExtension
   static final WireMockExtension WIREMOCK = WireMockExtension.newInstance()
@@ -73,6 +76,7 @@ class SolutionCreateBookWireMockIT {
 
   static {
     POSTGRES.start();
+    MAILPIT.start();
   }
 
   @DynamicPropertySource

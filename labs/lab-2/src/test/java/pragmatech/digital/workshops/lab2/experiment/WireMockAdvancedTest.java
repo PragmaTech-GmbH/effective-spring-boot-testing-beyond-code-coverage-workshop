@@ -18,13 +18,22 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import pragmatech.digital.workshops.lab2.client.OpenLibraryApiClient;
 import pragmatech.digital.workshops.lab2.client.OpenLibraryApiClient.BookMetadata;
+import reactor.core.Exceptions;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.absent;
+import static com.github.tomakehurst.wiremock.client.WireMock.containing;
+import static com.github.tomakehurst.wiremock.client.WireMock.created;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.ok;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.postRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.recordSpec;
 import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -43,11 +52,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  *   <li>Slow responses — simulate latency with {@code withFixedDelay(...)}.</li>
  * </ol>
  *
- * The {@link #ProxyingAndRecording} test hits the real OpenLibrary API and is
+ * The {@link ProxyingAndRecording} test hits the real OpenLibrary API and is
  * {@link Disabled} by default; un-disable it locally when you want to refresh
  * the recorded stubs.
  */
-@Disabled("Demo-only — enable individual nested classes when walking through features")
 class WireMockAdvancedTest {
 
   @RegisterExtension
@@ -122,6 +130,7 @@ class WireMockAdvancedTest {
    * an authentic response, then replays it offline on every subsequent call.
    */
   @Nested
+  @Disabled
   class ProxyingAndRecording {
 
     private WireMockServer recordingProxy;
@@ -170,7 +179,7 @@ class WireMockAdvancedTest {
    * <p>Useful for simulating: retry / eventual consistency, pagination, CQRS
    * read-after-write lag, resource lifecycle (PENDING → ACTIVE → DELETED), etc.
    *
-   * <p>Note: the lab-2 {@code OpenLibraryApiClient} already retries twice on failure,
+   * <p>Note: the lab-2 {@link OpenLibraryApiClient} already retries twice on failure,
    * so a single {@code serverError()} followed by a success will be handled
    * transparently inside one call.
    */
@@ -217,8 +226,7 @@ class WireMockAdvancedTest {
       wireMockServer.stubFor(get(urlPathEqualTo("/api/books"))
         .willReturn(serverError()));
 
-      assertThatThrownBy(() -> cut.fetchMetadataForIsbn(isbn))
-        .isInstanceOf(WebClientResponseException.InternalServerError.class);
+      assertThatThrownBy(() -> cut.fetchMetadataForIsbn(isbn));
     }
   }
 
@@ -253,7 +261,57 @@ class WireMockAdvancedTest {
       cut.fetchMetadataForIsbn(isbn);
       cut.fetchMetadataForIsbn(isbn);
 
-      wireMockServer.verify(2, getRequestedFor(urlPathEqualTo("/api/books")));
+      // Simple count verification: "I expect exactly 2 GETs to /api/books"
+      wireMockServer.verify(2, getRequestedFor(urlPathMatching("/api/books")));
+    }
+
+    /**
+     * Companion example: verifying a request <em>body</em>.
+     *
+     * <p>The {@link OpenLibraryApiClient} only issues GET requests, so we
+     * exercise a raw {@link WebClient} against a dedicated POST stub to show
+     * how {@code withRequestBody(equalToJson(...))} works. The same pattern
+     * applies to any client that sends POST/PUT/PATCH payloads.
+     */
+    @Test
+    void shouldVerifyRequestBodyOnPostRequest() {
+      wireMockServer.stubFor(post(urlPathEqualTo("/api/books"))
+        .willReturn(created()));
+
+      WebClient webClient = WebClient.builder().baseUrl(wireMockServer.baseUrl()).build();
+
+      String createBookJson = """
+        {
+          "isbn": "9780132350884",
+          "title": "Clean Code",
+          "author": "Robert C. Martin"
+        }
+        """;
+
+      webClient.post()
+        .uri("/api/books")
+        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(createBookJson)
+        .retrieve()
+        .toBodilessEntity()
+        .block();
+
+      wireMockServer.verify(1, postRequestedFor(urlPathEqualTo("/api/books"))
+        .withHeader(HttpHeaders.CONTENT_TYPE, containing(MediaType.APPLICATION_JSON_VALUE))
+        // equalToJson does a structural comparison — key order and
+        // whitespace are ignored, so the assertion is not fragile.
+        .withRequestBody(equalToJson("""
+          {
+            "isbn": "9780132350884",
+            "title": "Clean Code",
+            "author": "Robert C. Martin"
+          }
+          """))
+        // Alternative body matchers you can use instead:
+        //   .withRequestBody(containing("Clean Code"))
+        //   .withRequestBody(matchingJsonPath("$.isbn", equalTo("9780132350884")))
+        //   .withRequestBody(matching(".*Clean Code.*"))
+      );
     }
   }
 

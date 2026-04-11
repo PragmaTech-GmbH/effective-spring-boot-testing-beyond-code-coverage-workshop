@@ -33,7 +33,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,13 +70,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Disabled("Superseded by BookControllerOAuth2StubIT + OAuth2Stubs helper")
 class WireMockJwksAuthIT {
 
-  static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>("postgres:16-alpine");
+  static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine");
   static {
     POSTGRES.start();
   }
 
   @ServiceConnection
-  static PostgreSQLContainer<?> postgres() {
+  static PostgreSQLContainer postgres() {
     return POSTGRES;
   }
 

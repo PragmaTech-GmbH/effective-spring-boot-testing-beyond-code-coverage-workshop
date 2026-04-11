@@ -3,7 +3,7 @@ marp: true
 theme: pragmatech
 ---
 
-![bg](./assets/digdir-cover.jpg)
+![bg](./assets/barcelona-spring-io.jpg)
 
 ---
 
@@ -12,7 +12,9 @@ theme: pragmatech
 
 # Effective Spring Boot Testing Beyond Code Coverage
 
-## Lab 2 — Two Modes of `@SpringBootTest`
+## Full-Day Workshop
+
+_Spring I/O Conference Workshop 13.04.2026_
 
 Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil](https://x.com/rieckpil)
 
@@ -23,75 +25,39 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ## Discuss Exercises from Lab 1
 
-- Did your `@SpringBootTest` boot end-to-end?
-- How fast was the first run vs. the second run?
-- Surprises with port mapping / `@DynamicPropertySource`?
+- Integration test including email notification: `ExerciseDeleteBookSendsEmailIT`
+  - Setup three containers with Testcontainers
+  - Prepare data for the test
+  - (Optional) Verify the email was received at Mailpit
 
 ---
 
 
 ## Recap of Lab 1
 
-- `@SpringBootTest` needs **real** infra to be meaningful
-- Testcontainers + `@ServiceConnection` removes 90% of the boilerplate
-- Add Mailpit for SMTP, Keycloak for OAuth2
-- Same containers power local dev *and* tests
-
-**Next:** WireMock + OAuth2 — testing the HTTP boundary.
+- TBD
 
 ---
 
 # Lab 2
 
-## Two Modes of `@SpringBootTest` — WireMock & Security
+## Writing Reliable Spring Boot Integration Tests Part II
 
 ---
 
 ## The Next Problem: External HTTP Calls
 
-`BookService.createBook` calls **OpenLibrary** to enrich metadata:
+When creating a new book with HTTP POST `/api/books`, our `BookService.createBook` calls **OpenLibrary** to enrich metadata :
 
 ```java
-BookMetadataResponse metadata = openLibraryApiClient.getBookByIsbn(request.isbn());
+BookMetadata metadata = openLibraryApiClient.fetchMetadataForIsbn(isbn);
 ```
 
 In tests we want to:
 
-- ❌ Not hit the real internet (slow, flaky, rate-limited)
-- ✅ Stay realistic — exercise the actual HTTP client + serialization
-- ✅ Control responses, including failures and timeouts
-
----
-
-## Introducing WireMock
-
-> *"A simulator for HTTP-based APIs."*
-
-- Real HTTP server bound to a random port
-- Stub `GET /api/books/...` with a canned JSON body
-- **Verify** which requests your code made
-- Advanced: response templates, proxying, stateful scenarios
-
----
-
-
-## Challenge 1: HTTP Communication during Tests
-
-```java
-@Bean
-public CommandLineRunner initializeBookMetadata() {
-  return args -> {
-    // Fires real HTTP to https://openlibrary.org on every context start
-    openLibraryApiClient.getBookByIsbn("9780132350884");
-    openLibraryApiClient.getBookByIsbn("9780201633610");
-    openLibraryApiClient.getBookByIsbn("9780134757599");
-  };
-}
-```
-
-- Context fails to start when the remote API is **unreachable** (CI, airplane mode)
-- Tests become **non-deterministic** - dependent on external state and sample data
-- Solution: stub the HTTP calls **before** the Spring context finishes starting
+❌ Avoid test failures when the remote API is **unreachable** (CI, airplane mode)
+❌ Tests becoming **non-deterministic** - dependent on external state and sample data
+✅ Control responses, including failures and timeouts
 
 ---
 
@@ -102,9 +68,10 @@ public CommandLineRunner initializeBookMetadata() {
 - Authentication - real API keys in CI pipelines?
 - Cleanup - data written to external systems
 - No airplane-mode testing possible
-- Solution: **stub the HTTP responses** for the remote system
 
 ---
+
+![bg right:33%](assets/airplane-mode.jpg)
 
 ## Why Offline / Airplane Mode Matters
 
@@ -114,6 +81,21 @@ public CommandLineRunner initializeBookMetadata() {
   - **Flaky** - rate limits, API downtime, responses that change over time
   - **Insecure** - credentials leak into logs, data written to external systems
 - **Rule:** no test should require an outbound network connection
+
+---
+
+
+## Solution: HTTP Response Stubbing
+
+Introducing **WireMock**
+
+> *"A simulator for HTTP-based APIs."*
+
+- In-memory (or Docker container) Jetty to stub HTTP responses to simulate a remote HTTP API
+- Simulate failures, slow responses, etc.
+- Alternatives: MockServer, MockWebServer, etc.
+- Stub `GET /api/books/...` with a pre-defined JSON body
+- **Verify** which requests our code made
 
 ---
 
@@ -143,6 +125,43 @@ wireMockServer.stubFor(
 ```
 
 ---
+
+## Important Prerequisite: Configurable Base URL
+
+```java
+@Value("${book.metadata.api.url:https://openlibrary.org}") 
+String baseUrl;
+
+@Value("${book.metadata.api.timeout:5}") 
+int timeoutSeconds;
+
+@Bean
+public WebClient openLibraryWebClient() {
+
+  // ...
+
+  return WebClient.builder()
+    .baseUrl(baseUrl)
+    .codecs(configurer -> configurer
+      .defaultCodecs()
+      .maxInMemorySize(16 * 1024 * 1024)) // 16MB buffer for larger responses
+    .build();
+}
+```
+
+---
+
+## Overriding the Base URL in Tests
+
+```java
+// unit tests
+new OpenLibraryApiClient(WebClient.builder().baseUrl(wireMockServer.baseUrl()).build());
+
+
+```
+
+---
+
 
 ## WireMock: Advanced Features
 

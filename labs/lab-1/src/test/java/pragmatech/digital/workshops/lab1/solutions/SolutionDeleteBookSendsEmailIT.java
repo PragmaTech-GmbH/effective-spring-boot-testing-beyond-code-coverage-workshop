@@ -2,52 +2,62 @@ package pragmatech.digital.workshops.lab1.solutions;
 
 import java.time.Duration;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.awaitility.Awaitility;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.client.RestClient;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import pragmatech.digital.workshops.lab1.config.AbstractOAuth2IntegrationTest;
 import pragmatech.digital.workshops.lab1.entity.Book;
+import pragmatech.digital.workshops.lab1.experiment.KeycloakContainer;
+import pragmatech.digital.workshops.lab1.experiment.MailpitContainer;
 import pragmatech.digital.workshops.lab1.repository.BookRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Solution 2 — End-to-end DELETE → email-on-delete check, three variants.
+ * Solution — End-to-end DELETE → email-on-delete check, three variants.
  *
  * <p>Each test arranges the "doomed" book a different way, then fires {@code DELETE /api/books/{id}}
  * with a bearer token for the {@code admin} user and polls Mailpit's REST API to verify the
  * notification email was actually rendered and delivered.
  *
- * <h3>Three ways to arrange the data</h3>
- * <ol>
- *   <li><b>{@code bookRepository.save(...)}</b> — simplest, works here because
- *       {@link AbstractOAuth2IntegrationTest} is <i>not</i> {@code @Transactional}, so the
- *       INSERT is committed before the HTTP call. <b>Careful:</b> if you (or a teammate) ever
- *       adds {@code @Transactional} to the test class, the save runs inside the test's
- *       transaction which is rolled back at the end. The controller thread that handles
- *       {@code DELETE /api/books/{id}} runs on Tomcat's request thread with its <i>own</i>
- *       {@link org.springframework.transaction.annotation.Transactional} scope — it will
- *       never see your yet-uncommitted row and you'll get a surprise 404. Different thread,
- *       different transaction, different visibility. This is one of the most common
- *       integration-test gotchas.</li>
- *   <li><b>{@code @Sql} script</b> — executes the INSERT through a plain JDBC connection in
- *       its own auto-committed transaction before the test body runs, so the row is
- *       guaranteed to be visible to the server thread regardless of any JPA / transaction
- *       config in the test. Bonus: you get to see the exact SQL in version control.</li>
- *   <li><b>Create through the real HTTP endpoint</b> — {@code POST /api/books} exercises the
- *       full stack (validation, {@code OpenLibrary} enrichment, security, JPA commit) and
- *       leaves the row committed by the time the response comes back, so it's also immune
- *       to the transaction-scope pitfall. Best for "full journey" demos, slowest to run.</li>
- * </ol>
  */
-class Solution2DeleteBookSendsEmailIT extends AbstractOAuth2IntegrationTest {
+@AutoConfigureRestTestClient
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class SolutionDeleteBookSendsEmailIT {
+
+
+  @ServiceConnection
+  protected static final PostgreSQLContainer POSTGRES =
+    new PostgreSQLContainer("postgres:16-alpine");
+
+  protected static final KeycloakContainer KEYCLOAK = new KeycloakContainer();
+
+  protected static final MailpitContainer MAILPIT = new MailpitContainer();
+
+  static {
+    POSTGRES.start();
+    KEYCLOAK.start();
+    MAILPIT.start();
+  }
+
+  @DynamicPropertySource
+  static void resourceServerProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri", KEYCLOAK::getIssuerUri);
+    registry.add("spring.mail.host", MAILPIT::getHost);
+    registry.add("spring.mail.port", MAILPIT::getSmtpPort);
+  }
 
   @Autowired
   BookRepository bookRepository;
@@ -138,33 +148,29 @@ class Solution2DeleteBookSendsEmailIT extends AbstractOAuth2IntegrationTest {
       .atMost(Duration.ofSeconds(10))
       .pollInterval(Duration.ofMillis(200))
       .untilAsserted(() -> {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> inbox = mailpitClient.get()
+        ObjectNode inbox = mailpitClient.get()
           .uri("/api/v1/search?query=" + expectedIsbn)
           .retrieve()
-          .body(Map.class);
+          .body(ObjectNode.class);
 
         assertThat(inbox).isNotNull();
-        @SuppressWarnings("unchecked")
-        List<Map<String, Object>> messages = (List<Map<String, Object>>) inbox.get("messages");
-        assertThat(messages)
+        assertThat(inbox.path("messages"))
           .as("expected deletion email for ISBN %s in Mailpit", expectedIsbn)
           .isNotEmpty();
 
-        Map<String, Object> firstMessage = messages.get(0);
-        String messageId = (String) firstMessage.get("ID");
+        var firstMessage = inbox.path("messages").get(0);
+        String messageId = firstMessage.path("ID").asText();
 
-        assertThat((String) firstMessage.get("Subject"))
+        assertThat(firstMessage.path("Subject").asText())
           .startsWith("Book removed from library");
 
-        @SuppressWarnings("unchecked")
-        Map<String, Object> fullMessage = mailpitClient.get()
+        ObjectNode fullMessage = mailpitClient.get()
           .uri("/api/v1/message/" + messageId)
           .retrieve()
-          .body(Map.class);
+          .body(ObjectNode.class);
 
         assertThat(fullMessage).isNotNull();
-        String htmlBody = (String) fullMessage.get("HTML");
+        String htmlBody = fullMessage.path("HTML").asText();
         assertThat(htmlBody)
           .as("rendered FreeMarker template should include the deleted book's ISBN")
           .contains(expectedIsbn);

@@ -175,8 +175,8 @@ junit.jupiter.execution.parallel.mode.classes.default = concurrent
 
 ```java
 public abstract class AbstractIT {
-  static final PostgreSQLContainer<?> POSTGRES =
-      new PostgreSQLContainer<>("postgres:16-alpine");
+  static final PostgreSQLContainer POSTGRES =
+      new PostgreSQLContainer("postgres:16-alpine");
   static { POSTGRES.start(); }
 }
 ```

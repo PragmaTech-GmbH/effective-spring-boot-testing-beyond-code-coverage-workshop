@@ -25,25 +25,5 @@ import pragmatech.digital.workshops.lab1.experiment.MailpitContainer;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class AbstractOAuth2IntegrationTest {
 
-  @ServiceConnection
-  protected static final PostgreSQLContainer POSTGRES =
-    new PostgreSQLContainer("postgres:16-alpine");
-
-  protected static final KeycloakContainer KEYCLOAK = new KeycloakContainer();
-
-  protected static final MailpitContainer MAILPIT = new MailpitContainer();
-
-  static {
-    POSTGRES.start();
-    KEYCLOAK.start();
-    MAILPIT.start();
-  }
-
-  @DynamicPropertySource
-  static void resourceServerProperties(DynamicPropertyRegistry registry) {
-    registry.add("spring.security.oauth2.resourceserver.jwt.issuer-uri", KEYCLOAK::getIssuerUri);
-    registry.add("spring.mail.host", MAILPIT::getHost);
-    registry.add("spring.mail.port", MAILPIT::getSmtpPort);
-  }
 
 }

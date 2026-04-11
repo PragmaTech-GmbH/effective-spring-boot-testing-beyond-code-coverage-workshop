@@ -1,8 +1,6 @@
 package pragmatech.digital.workshops.lab2.exercises;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Exercise — Integration test for {@code POST /api/books} with a WireMock-stubbed
@@ -81,8 +79,6 @@ import org.springframework.boot.test.context.SpringBootTest;
  *       client expects.</li>
  * </ul>
  */
-@SpringBootTest
-@Disabled("TODO: implement the POST /api/books integration test with a WireMock-stubbed OpenLibrary API")
 class ExerciseCreateBookWireMockIT {
 
   @Test

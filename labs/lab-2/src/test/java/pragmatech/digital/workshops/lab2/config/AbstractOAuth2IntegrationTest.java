@@ -12,7 +12,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
 /**
  * Base class for integration tests that need a real OAuth2 access token signed by
@@ -30,8 +30,8 @@ import org.testcontainers.containers.PostgreSQLContainer;
 public abstract class AbstractOAuth2IntegrationTest {
 
   @ServiceConnection
-  protected static final PostgreSQLContainer<?> POSTGRES =
-    new PostgreSQLContainer<>("postgres:16-alpine");
+  protected static final PostgreSQLContainer POSTGRES =
+    new PostgreSQLContainer("postgres:16-alpine");
 
   static {
     POSTGRES.start();
