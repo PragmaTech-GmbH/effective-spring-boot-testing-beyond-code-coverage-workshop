@@ -292,14 +292,13 @@ class BookControllerMockMvcIT {
 - Faster than `RANDOM_PORT` since no real HTTP server is started
 - We don't need our Keycloak as we can use Spring Security Test (e.g. `SecurityMockMvcRequestPostProcessors.jwt()`) to simulate authenticated requests
 
-
 ---
 
 ## Variant 2: `RANDOM_PORT` - Entire Context with Servlet Container
 
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureTestRestTemplate // choose one
+@AutoConfigureWebTestClient // ... or RestTestClient/TestRestTemplate
 class SampleIT {
 
   @LocalServerPort
@@ -314,6 +313,14 @@ class SampleIT {
   }
 }
 ```
+
+---
+
+## Differences compared to `MOCK` Mode
+
+- Both the test and tha controller code run in a separate thread, so `@Transactional` tests will roll back changes made by the controller
+- We can't use Spring Security Test and have to provide a valid authentication
+- We start Tomcat and have our real target environment and get closer to production
 
 ---
 
