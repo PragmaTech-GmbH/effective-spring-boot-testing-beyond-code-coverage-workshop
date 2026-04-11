@@ -76,11 +76,11 @@ class SolutionCreateBookWireMockIT {
   static {
     POSTGRES.start();
     MAILPIT.start();
+    WIREMOCK.start();
   }
 
   @BeforeAll
   static void startStubs() {
-    WIREMOCK.start();
     oauth2Stubs = new OAuth2Stubs(WIREMOCK, "workshop");
     oauth2Stubs.stubOpenIdConfiguration();
   }

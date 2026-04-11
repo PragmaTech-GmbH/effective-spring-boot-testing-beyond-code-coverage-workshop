@@ -1,12 +1,3 @@
-### Fetch an access token from local Keycloak (client_credentials, scopes books:read + books:write)
-# @name clientToken
-POST http://localhost:8090/realms/test-realm/protocol/openid-connect/token
-Content-Type: application/x-www-form-urlencoded
-
-grant_type=client_credentials&client_id=test-client&client_secret=test-secret&scope=books:read books:write
-
-> {% client.global.set("accessToken", response.body.access_token); %}
-
 ### Fetch a user access token (password grant — alice has books:read)
 # @name aliceToken
 POST http://localhost:8090/realms/test-realm/protocol/openid-connect/token
@@ -32,30 +23,19 @@ Accept: application/json
 ### Get a single book by id (requires books:read)
 GET http://localhost:8080/api/books/1
 Accept: application/json
-Authorization: Bearer {{accessToken}}
+Authorization: Bearer {{aliceAccessToken}}
 
 ### Create a new book (requires books:write)
 POST http://localhost:8080/api/books
 Content-Type: application/json
-Authorization: Bearer {{accessToken}}
+Authorization: Bearer {{aliceAccessToken}}
 
 {
-  "isbn": "978-0134685991",
-  "title": "Effective Java",
-  "author": "Joshua Bloch",
-  "publishedDate": "2017-12-27"
-}
-
-### Update an existing book (requires books:write)
-PUT http://localhost:8080/api/books/1
-Content-Type: application/json
-Authorization: Bearer {{accessToken}}
-
-{
-  "title": "Effective Java (3rd Edition)",
-  "author": "Joshua Bloch"
+  "isbn": "978-0132350884",
+  "internalName": "http-created",
+  "availabilityDate": "2024-01-01"
 }
 
 ### Delete a book (requires books:write)
 DELETE http://localhost:8080/api/books/1
-Authorization: Bearer {{accessToken}}
+Authorization: Bearer {{aliceAccessToken}}

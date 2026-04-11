@@ -15,3 +15,14 @@ services:
     ports:
       - '1025:1025'
       - '8025:8025'
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3
+    command: ["start-dev", "--import-realm", "--http-port=8090"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HEALTH_ENABLED: 'true'
+    ports:
+      - '8090:8090'
+    volumes:
+      - ./src/test/resources/keycloak/test-realm.json:/opt/keycloak/data/import/test-realm-realm.json:ro

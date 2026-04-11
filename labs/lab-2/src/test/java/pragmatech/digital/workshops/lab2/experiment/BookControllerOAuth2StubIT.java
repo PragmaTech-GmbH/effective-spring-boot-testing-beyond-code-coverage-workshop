@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
@@ -38,7 +36,7 @@ import pragmatech.digital.workshops.lab2.repository.BookRepository;
  *       (missing scope, wrong issuer, expired token, wrong signing key) are
  *       trivial to reproduce.</li>
  * </ul>
- *
+ * <p>
  * Trade-off: you are no longer exercising the real IdP, so drift in token shape
  * (new claims, algorithm changes, audience enforcement) will not surface here.
  * Keep at least one {@code AbstractOAuth2IntegrationTest}-based test around for
@@ -60,10 +58,6 @@ class BookControllerOAuth2StubIT {
 
   static {
     POSTGRES.start();
-  }
-
-  @BeforeAll
-  static void startStubs() {
     WIREMOCK.start();
     MAILPIT.start();
     oauth2Stubs = new OAuth2Stubs(WIREMOCK, "workshop");
@@ -84,10 +78,10 @@ class BookControllerOAuth2StubIT {
   }
 
   @Autowired
-  RestTestClient restTestClient;
+  private RestTestClient restTestClient;
 
   @Autowired
-  BookRepository bookRepository;
+  private BookRepository bookRepository;
 
   @Test
   void shouldReturnOkWhenTokenHasReadScope() {
@@ -110,11 +104,10 @@ class BookControllerOAuth2StubIT {
   }
 
   @Test
-  @DisplayName("should return 403 when caller token is missing books:read scope")
   void shouldReturnForbiddenWhenTokenMissingReadScope() {
     String token = oauth2Stubs.signedJwt("alice", "profile");
 
-    restTestClient.get()
+    this.restTestClient.get()
       .uri("/api/books/1")
       .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
       .exchange()
@@ -123,9 +116,8 @@ class BookControllerOAuth2StubIT {
   }
 
   @Test
-  @DisplayName("should return 401 when no bearer token is provided")
   void shouldReturnUnauthorizedWhenNoToken() {
-    restTestClient.get()
+    this.restTestClient.get()
       .uri("/api/books/1")
       .exchange()
       .expectStatus().isUnauthorized();
