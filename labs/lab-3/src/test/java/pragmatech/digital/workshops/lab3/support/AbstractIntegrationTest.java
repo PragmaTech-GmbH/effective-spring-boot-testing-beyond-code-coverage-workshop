@@ -63,7 +63,6 @@ import pragmatech.digital.workshops.lab3.client.OpenLibraryApiClient;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
-@Import(AbstractIntegrationTest.RealOpenLibraryClientConfig.class)
 public abstract class AbstractIntegrationTest {
 
   @ServiceConnection
@@ -96,13 +95,4 @@ public abstract class AbstractIntegrationTest {
    * {@link OpenLibraryApiClient} pointed at the shared WireMock server, so
    * integration tests actually exercise the HTTP client.
    */
-  @TestConfiguration
-  public static class RealOpenLibraryClientConfig {
-
-    @Bean
-    @Primary
-    OpenLibraryApiClient openLibraryApiClient(WebClient openLibraryWebClient) {
-      return new OpenLibraryApiClient(openLibraryWebClient);
-    }
-  }
 }
