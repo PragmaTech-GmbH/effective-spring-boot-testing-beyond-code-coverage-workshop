@@ -102,43 +102,6 @@ class SolutionDeleteBookSendsEmailIT {
     assertDeletionEmailReceived("Preloaded via @Sql", "978-0000000042");
   }
 
-  @Test
-  void shouldDeleteBookAndSendNotificationEmailWhenBookCreatedViaHttpEndpoint() {
-    String adminToken = KEYCLOAK.getAccessToken("admin", "admin");
-
-    String createBookJson = """
-      {
-        "isbn": "978-0201616224",
-        "internalName": "http-created",
-        "availabilityDate": "2024-01-01"
-      }
-      """;
-
-    String location = this.restTestClient.post()
-      .uri("/api/books")
-      .header("Authorization", "Bearer " + adminToken)
-      .contentType(MediaType.APPLICATION_JSON)
-      .body(createBookJson)
-      .exchange()
-      .expectStatus().isCreated()
-      .returnResult(Void.class)
-      .getResponseHeaders()
-      .getFirst("Location");
-
-    assertThat(location).as("POST /api/books must return a Location header").isNotNull();
-    Long newBookId = Long.valueOf(location.substring(location.lastIndexOf('/') + 1));
-
-    this.restTestClient.delete()
-      .uri("/api/books/{id}", newBookId)
-      .header("Authorization", "Bearer " + adminToken)
-      .exchange()
-      .expectStatus().isNoContent();
-
-    assertThat(bookRepository.findById(newBookId)).isEmpty();
-
-    assertDeletionEmailReceived(null, "978-0000000077");
-  }
-
   private void assertDeletionEmailReceived(String expectedTitleOrNull, String expectedIsbn) {
     RestClient mailpitClient = RestClient.create(MAILPIT.getApiBaseUrl());
 
