@@ -12,7 +12,7 @@ Proudly presented by [PragmaTech GmbH](https://pragmatech.digital/).
 
 Take your Spring Boot testing skills beyond the basics: realistic infrastructure with Testcontainers, the HTTP boundary with WireMock, context caching and parallel execution for speed, and mutation testing to verify your tests actually catch bugs.
 
-All four labs share **one** sample application — a Library Management System (book CRUD, OAuth2 Resource Server, OpenLibrary metadata enrichment, and an email-on-delete notification via Spring Mail).
+All four labs share **one** sample application - a Library Management System (book CRUD, OAuth2 Resource Server, OpenLibrary metadata enrichment, and an email-on-delete notification via Spring Mail).
 
 ### Agenda - One Day, Four Labs
 
