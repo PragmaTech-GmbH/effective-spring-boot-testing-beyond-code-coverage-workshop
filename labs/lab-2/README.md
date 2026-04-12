@@ -1,30 +1,52 @@
-# Lab 2 — Two Modes of `@SpringBootTest`: WireMock + Security
+# Lab 2 - Writing Reliable Integration Tests Part II
 
-Builds on Lab 1. Same baseline app (now sending an email when a book is deleted), but the focus shifts to the **HTTP boundary** and **OAuth2**.
+Builds on Lab 1. Same baseline app, but the focus shifts to **stubbing external HTTP calls**, **OAuth2 security in tests**, and the difference between **MOCK vs RANDOM_PORT**.
 
 ## Learning Objectives
 
 - Stub the OpenLibrary HTTP dependency with **WireMock**
-- Provide a valid **JWT** for an integration test (three strategies)
-- Pick `MOCK` vs `RANDOM_PORT` deliberately
-- Understand the limits of `@Transactional` for integration tests
+- Provide a valid **signed JWT** without running Keycloak (using `OAuth2Stubs`)
+- Understand the difference between `MOCK` and `RANDOM_PORT` web environments
+- Understand why `@Transactional` rollback only works with `MOCK` mode (same-thread dispatch)
+- Use **Spring Security Test** (`jwt().authorities(...)`) for MockMvc-based tests
 
 ## Exercises
 
-1. Write a full integration test for `POST /api/books` that stubs OpenLibrary with WireMock and asserts the persisted `thumbnailUrl`.
-2. Add an `Authorization: Bearer …` header with a self-signed test JWT and make `SecurityConfig` accept it.
-3. Convert one of your tests from `MOCK` to `RANDOM_PORT` — observe what breaks (especially `@Transactional` cleanup) and fix it.
+### Exercise 1: `ExerciseCreateBookWireMockIT`
+
+Write a `RANDOM_PORT` integration test for `POST /api/books` that:
+
+1. Starts a PostgreSQL Testcontainers and a WireMockServer
+2. Stubs the OpenLibrary API response with WireMock (use `OpenLibraryStubs` helper)
+3. Stubs OIDC discovery + JWKS on the same WireMock instance (use `OAuth2Stubs` helper)
+4. Sends a POST request with a signed JWT carrying `SCOPE_books:write`
+5. Asserts `201 Created` with a `Location` header
+6. Verifies the persisted book has enriched metadata (title, author, thumbnailUrl)
+7. Cleans up the database in `@AfterEach` (no `@Transactional` rollback with `RANDOM_PORT`)
+
+**Hints:**
+- Look at `experiment/OAuth2Stubs` for minting JWTs and `experiment/OpenLibraryStubs` for WireMock helpers
+- Override `FallbackOpenLibraryApiClient` with a `@TestConfiguration` + `@Primary` real `OpenLibraryApiClient`
+- Wire `book.metadata.api.url` and `spring.security.oauth2.resourceserver.jwt.issuer-uri` via `@DynamicPropertySource`
+
+## Explore the Experiment Package
+
+The `experiment` package contains fully working demos you can study and run:
+
+- `BookControllerMockMvcIT` — MockMvc + `@Transactional` rollback + Spring Security Test (`jwt()`)
+- `BookControllerOAuth2StubIT` — RANDOM_PORT + `OAuth2Stubs` replacing Keycloak
+- `WireMockAdvancedTest` — response templating, stateful scenarios, request verification, slow responses
+- `OpenLibraryStubs` / `OAuth2Stubs` — POJO helpers that wrap WireMock stubbing DSL
 
 ## How to Run
 
 ```bash
+cd labs/lab-2
 ./mvnw verify
 ```
 
 ## Reference Solutions
 
-Worked solutions live under `src/test/java/.../lab2/solutions/`:
+Solutions live under `src/test/java/.../lab2/solutions/`:
 
-- `Solution1WireMockCreateBookIT` — full `POST /api/books` IT with WireMock-stubbed OpenLibrary
-- `Solution2RealJwtIT` — step-by-step guide for migrating to OAuth2 Resource Server and signing your own JWT (delivered as a documentation-only stub because the starter app uses HTTP Basic; converting `SecurityConfig` is part of the live walkthrough)
-- `Solution3MockVsRandomPortIT` — `RANDOM_PORT` test with `@AfterEach` cleanup instead of `@Transactional` rollback
+- `SolutionCreateBookWireMockIT` — full `POST /api/books` IT with RANDOM_PORT, WireMock, OAuth2Stubs, and explicit cleanup
