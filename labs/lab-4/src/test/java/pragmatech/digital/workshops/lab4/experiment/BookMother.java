@@ -1,4 +1,4 @@
-package pragmatech.digital.workshops.lab4.support;
+package pragmatech.digital.workshops.lab4.experiment;
 
 import java.time.LocalDate;
 

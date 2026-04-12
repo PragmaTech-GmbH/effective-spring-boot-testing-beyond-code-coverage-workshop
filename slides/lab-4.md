@@ -37,8 +37,6 @@ Philip Riecks - [PragmaTech GmbH](https://pragmatech.digital/) - [@rieckpil](htt
 
 - We learned why **fast builds matter**: shorter feedback loops, more flow, quicker bug fixes, and a concrete ROI multiplier across the team
 - We discovered **Spring Test Context Caching** — how Spring computes a cache key from `MergedContextConfiguration` and reuses contexts when the key matches
-- We hunted down five **context cache killers**: `@DirtiesContext`, inline `@SpringBootTest` properties, `@TestPropertySource`, `@MockitoBean`, and `@ActiveProfiles`
-- We applied the **`AbstractIntegrationTest` pattern** — one shared base class with unified config so the entire IT suite boots a single context
 - We explored **test parallelization** at two levels: Maven Surefire `forkCount` (process-level) and JUnit Jupiter `parallel.mode.classes.default = concurrent` (thread-level)
 - We covered **Testcontainers best practices**: singleton containers via static `@Bean @ServiceConnection`, connection pool exhaustion, and reuse mode for local development
 
@@ -68,15 +66,14 @@ The moment you make code coverage a **KPI**, you change what people optimise for
 
 ## What happens in Practice
 
+If our coverage number is our goal, we will hit the number. We will **not** necessarily ship software with confidence.
+
 | Shortcut | Coverage effect | Confidence effect |
 |---|---|---|
 | Tests with no assertions | Coverage goes up | Zero |
 | Happy-path-only tests | Coverage goes up | Misses every edge case |
 | Excluding hard-to-test code from reports | Coverage goes up | Hides the riskiest code |
 | Duplicating test data across scenarios | Coverage stays the same | Wastes effort, tests nothing new |
-
-> If our coverage number is our goal, we will hit the number. We will **not** necessarily ship software with confidence.
-
 
 ---
 
@@ -141,19 +138,14 @@ void shouldReturnFeeWhenBookIsOverdue() {
 ## Our Upcoming Example
 
 ```java
-@Service
 public class LateReturnFeeCalculator {
-
-  private static final BigDecimal RATE_TIER_ONE = new BigDecimal("1.00");
-  private static final BigDecimal RATE_TIER_TWO = new BigDecimal("2.00");
 
   public BigDecimal calculateFee(Book book, LocalDate borrowedDate) {
     if (book.getStatus() != BookStatus.BORROWED) {
       return BigDecimal.ZERO;
     }
 
-    LocalDate today = LocalDate.now(clock);
-    long daysOverdue = ChronoUnit.DAYS.between(borrowedDate, today);
+    long daysOverdue = ChronoUnit.DAYS.between(borrowedDate, LocalDate.now(clock));
 
     if (daysOverdue <= 0) {
       return BigDecimal.ZERO;
@@ -212,7 +204,7 @@ void shouldReturnFeeWhenBookIsOverdue() {
 }
 ```
 
-**PIT:** 8 of 12 mutants **survive**
+**PIT:** 5 of 9 mutants **survive**
 - `<= 7` mutated to `< 7` — tests still pass
 - `RATE_TIER_TWO` replaced with `RATE_TIER_ONE` — tests still pass
 - Return value replaced with `BigDecimal.ZERO` — tests still pass
@@ -246,25 +238,19 @@ Open `target/pit-reports/index.html` after each run.
 
 ## CI Integration & Adoption Strategy
 
-**Don't run PIT on every push** — it's 5-20x slower than a normal test run.
+**Don't run a full PIT coverage on every push** - it's 5-20x slower than a normal test run.
 
-**Phase 1 — Local exploration**
+**Phase 1 - Local exploration**
 ```bash
 ./mvnw test-compile org.pitest:pitest-maven:mutationCoverage
 ```
 
-**Phase 2 — Nightly CI** (full codebase scan, upload report as artifact)
+**Phase 2 - Nightly CI** (full codebase scan, upload report as artifact)
 
-**Phase 3 — PR-scoped** (only mutate changed files, much faster)
+**Phase 3 - PR-scoped** (only mutate changed files, much faster)
 ```bash
 ./mvnw test-compile org.pitest:pitest-maven:scmMutationCoverage
 ```
-
-**Performance tuning:**
-- `<threads>4</threads>` — parallel mutant execution
-- `<avoidCallsTo>org.slf4j,org.apache.logging</avoidCallsTo>` — skip logging mutants
-- `<mutationThreshold>80</mutationThreshold>` — fail build below threshold
-
 ---
 
 ## ArchUnit - Architecture Testing
@@ -314,13 +300,30 @@ class ArchUnitTest {
     .whereLayer("Controller").mayNotBeAccessedByAnyLayer()
     .whereLayer("Service").mayOnlyBeAccessedByLayers("Controller")
     .whereLayer("Repository").mayOnlyBeAccessedByLayers("Service");
-
-  @ArchTest
-  static final ArchRule classesShouldNotCallLocalDateNowDirectly = noClasses()
-    .that().resideOutsideOfPackage("..service..")
-    .and().resideInAPackage("pragmatech.digital.workshops.lab4..")
-    .should().callMethod(LocalDate.class, "now");
+  
 }
+```
+---
+
+## Another Useful Rule
+
+```java
+@ArchTest
+static final ArchRule classesShouldNotCallLocalDateNowDirectly = noClasses()
+  .that().resideOutsideOfPackage("..service..")
+  .and().resideInAPackage("pragmatech.digital.workshops.lab4..")
+  .should().callMethod(LocalDate.class, "now");
+```
+
+avoids directly calls to
+
+```java
+var today = LocalDate.now();  // hard to test, not deterministic
+```
+and enforces the use of `Clock` or a custom `TimeProvider` injection instead:
+
+```java
+var today = timeProvider.today();  // test-friendly, can be mocked or stubbed
 ```
 ---
 
@@ -354,7 +357,7 @@ Define your testing conventions in `.claude/CLAUDE.md` to guide AI code generati
 
 ```markdown
 ## Test Code Conventions
-- Use JUnit 5 + AssertJ for all tests
+- Use JUnit 6 + AssertJ for all tests
 - Name methods: shouldExpectedBehaviorWhenCondition
 - Use Arrange-Act-Assert pattern
 - Mock external dependencies with @MockitoBean
@@ -516,7 +519,6 @@ The goal is not zero failures - it is **fast, automatic recovery** when failures
 
 | Pattern | What it handles |
 |---|---|
-| Liveness probe restart | JVM deadlock, infinite loop |
 | Readiness probe traffic cut | Slow startup, warming up caches |
 | Circuit breaker (Resilience4j) | Downstream service unavailable |
 | Retry with exponential backoff | Transient network errors |
@@ -528,10 +530,10 @@ The goal is not zero failures - it is **fast, automatic recovery** when failures
 
 ## Lab 1 - Writing Reliable Integration Tests Part I
 
-- We set up real infrastructure with **Testcontainers** (Postgres, Keycloak, Mailpit) — no mocks, no in-memory substitutes
+- We set up real infrastructure with **Testcontainers** (Postgres, Keycloak, Mailpit) - no mocks, no in-memory substitutes
 - We connected containers to Spring via `@ServiceConnection` and `@DynamicPropertySource`
-- We wrote end-to-end tests covering the full stack: HTTP request, security, persistence, and email delivery
-- **Key takeaway:** if our production app talks to Postgres, our tests should too
+- We wrote integration tests covering the full stack: HTTP request, security, persistence, and email delivery
+- **Key takeaway:** if our production app talks to Postgres, our tests should too. Testcontainers will help us here.
 
 ---
 
@@ -541,28 +543,26 @@ The goal is not zero failures - it is **fast, automatic recovery** when failures
 - We replaced Keycloak with a lightweight **WireMock-based fake OIDC issuer** (`OAuth2Stubs`)
 - We compared **`MOCK` vs `RANDOM_PORT`**: same-thread `@Transactional` rollback vs real Tomcat with explicit cleanup
 - We used **Spring Security Test** (`jwt().authorities(...)`) to eliminate the identity provider entirely in MockMvc tests
-- **Key takeaway:** stub what we don't own, control what we do
+- **Key takeaway:** understand the tradeoffs of **`MOCK` vs `RANDOM_PORT`** and consider stubbing external APIs for more reliable and faster tests.
 
 ---
 
 ## Lab 3 - Accelerating Spring Boot Build Times
 
-- We understood why fast builds are a **team multiplier** — every minute saved compounds across developers and days
+- We understood why fast builds are a **team multiplier** - every minute saved compounds across developers and days
 - We mastered **Spring Test Context Caching** and identified five common cache killers
-- We applied the **`AbstractIntegrationTest` pattern** — one context for the entire IT suite
+- We applied the **`AbstractIntegrationTest` pattern** - one context for the entire IT suite
 - We parallelized tests at two levels: Maven `forkCount` (process) and JUnit Jupiter `concurrent` (thread)
 - We adopted **Testcontainers best practices**: singleton containers, connection pool sizing, and reuse mode
-- **Key takeaway:** the fastest test is the one that doesn't boot a new context
+- **Key takeaway:** the fastest test is the one that doesn't boot a new `ApplicationContext`.
 
 ---
 
 ## Lab 4 - Tips & Tricks beyond Code Coverage
 
-- We learned that code coverage is a **vanity metric** — a good negative indicator but a bad positive one
+- We learned that code coverage is a **vanity metric** - a good negative indicator but a bad positive one
 - We introduced **PIT mutation testing** to answer the real question: "would our tests catch a bug?"
-- We wrote weak tests (100% coverage, 33% mutation score) and strong tests (boundary pairs that kill every mutant)
 - We enforced architecture rules as executable tests with **ArchUnit**
-- We explored additional libraries: GreenMail, Selenide, Gatling, JMH, and Pact/Spring Cloud Contract
 - **Key takeaway:** coverage measures execution, mutation testing measures verification - we need both
 ---
 
@@ -578,7 +578,7 @@ The goal is not zero failures - it is **fast, automatic recovery** when failures
 
 ---
 
-## Level Up Your Organization On Spring Boot Testing
+## Level Up Your Organization On Automated Testing
 
 ![bg right:23%](assets/philip-jug-zurich-2025-audience.jpg)
 
@@ -598,23 +598,19 @@ Reach out via LinkedIn or email (philip@pragmatech.digital) to discuss the detai
 
 Join developers from all around the world in a public, hands-on cohort:
 
-**Confidence In Every Commit: Essentials (1 Day)** — Achieve confidence in every commit. Stop fighting your test suite and start mastering it.
+**Confidence In Every Commit: Essentials (1 Day)** - Achieve confidence in every commit. Stop fighting your test suite and start mastering it.
   - 🗓️ 02.07.2026
   - 🗓️ 08.09.2026
 
-Dates, agendas and tickets: **<https://rieckpil.de/workshops>**
+Dates, agendas and tickets: https://rieckpil.de/workshops
 
 ---
 
 ## Get Your Certificate of Participation
 
-![w:500 h:300 center](assets/certificate.png)
+![w:500 h:350 center](assets/certificate.png)
 
-**To claim your personalised certificate:**
-
-- Send a short email to **philip@pragmatech.digital**
-with your **full name**.
-- You'll get the signed PDF back within a day.
+To claim your personalised certificate, send a email to **philip@pragmatech.digital** with your **full name**.
 
 ---
 

@@ -43,7 +43,7 @@ Once the tests are complete and you are satisfied with their coverage, commit on
 
 When writing test code, please follow these guidelines:
 
-- Use JUnit 5 for all test classes
+- Use JUnit 6 for all test classes
 - Name test methods using the pattern: `should<ExpectedBehavior>When<Condition>`
 - Structure each test with the Arrange-Act-Assert pattern
 - Use AssertJ for all assertions

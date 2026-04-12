@@ -189,23 +189,11 @@
         <artifactId>pitest-maven</artifactId>
         <version>1.19.1</version>
         <dependencies>
-          <!--
-            REQUIRED for JUnit 5/6 support. Without this dependency, PIT
-            silently finds zero tests and reports 0 mutants killed.
-            Since version 1.2.0, the launcher version is auto-selected
-            to match your JUnit 5 version.
-          -->
           <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
             <version>1.2.1</version>
           </dependency>
-          <!--
-            Spring Boot 4 ships JUnit 6 (junit-platform 6.0.x). PIT's
-            internal pitest.jar bundles an older junit-platform-launcher
-            (1.9.x) which conflicts. We explicitly add the matching
-            launcher version so PIT's minion process can discover tests.
-          -->
           <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-launcher</artifactId>
@@ -213,21 +201,9 @@
           </dependency>
         </dependencies>
         <configuration>
-          <!--
-            targetClasses: Which production classes PIT should mutate.
-            Focus on classes with real business logic — services, domain,
-            utils. Avoid controllers, repositories, config, and DTOs.
-          -->
           <targetClasses>
-            <param>pragmatech.digital.workshops.lab4.service.*</param>
+            <param>pragmatech.digital.workshops.lab4.service.LateReturnFeeCalculator</param>
           </targetClasses>
-
-          <!--
-            targetTests: Which test classes PIT should run against mutants.
-            Only fast unit tests belong here. Exclude integration tests
-            (*IT.java) — PIT reruns tests many times and slow tests make
-            it unusable (hours instead of seconds).
-          -->
           <targetTests>
             <param>pragmatech.digital.workshops.lab4.*Test</param>
           </targetTests>
@@ -235,29 +211,10 @@
             <param>**.*IT</param>
             <param>**.*IntegrationTest</param>
           </excludedTestClasses>
-
-          <!--
-            threads: PIT processes mutants in parallel. More threads =
-            faster runs. Set to the number of CPU cores available.
-          -->
           <threads>4</threads>
-
-          <!--
-            timestampedReports: When false, PIT overwrites the previous
-            report instead of creating a new timestamped folder each run.
-            Keeps target/pit-reports/ clean during development.
-          -->
+          <verbose>false</verbose>
           <timestampedReports>false</timestampedReports>
-
-          <!--
-            mutationThreshold: Fail the build if the mutation score drops
-            below this percentage. Start low (60-70%) and ratchet up over
-            time. 80% is a good long-term target for business logic.
-
-            Uncomment the line below once you've strengthened your tests:
-            <mutationThreshold>80</mutationThreshold>
-          -->
-
+          <mutationThreshold>10</mutationThreshold>
           <!--
             avoidCallsTo: PIT won't generate "remove void method call"
             mutants for methods in these packages. Logging calls are a
