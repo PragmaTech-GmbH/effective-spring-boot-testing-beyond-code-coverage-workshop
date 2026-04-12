@@ -3,31 +3,33 @@ marp: true
 theme: pragmatech
 ---
 
-![bg](./assets/digdir-cover.jpg)
+![bg](./assets/barcelona-spring-io.jpg)
 
 ---
 
 <!-- _class: title -->
 ![bg h:500 left:33%](assets/generated/demystify.png)
 
-# Testing Spring Boot Applications Demystified
+# Effective Spring Boot Testing Beyond Code Coverage
 
-## Lab 4
 
-_Digdir Workshop 03.03.2026_
+## Full-Day Workshop
+
+_Spring I/O Conference Workshop 13.04.2026_
 
 Philip Riecks - [PragmaTech GmbH](https://pragmatech.digital/) - [@rieckpil](https://x.com/rieckpil)
 
 ---
 
-<!-- header: 'Testing Spring Boot Applications Demystified Workshop @ Digdir 03.03.2026' -->
+<!-- header: 'Effective Spring Boot Testing Beyond Code Coverage @ Spring I/0 2026' -->
 <!-- footer: '![w:32 h:32](assets/generated/logo.webp)' -->
 
 ## Discuss Exercises from Lab 3
 
-- Exercises:
-  - `Exercise1ParallelExecutionTest`
-  - `Exercise2TestIsolationTest`
+- Analyzing test suite for context cache reuse:
+  - How many unique `ApplicationContext` are created by the `ContextCacheKiller*IT` tests?
+  - Streamline the context setup with a shared class
+  - Verify that all tests share the same context and build time is reduced
 
 ---
 
@@ -35,44 +37,52 @@ Philip Riecks - [PragmaTech GmbH](https://pragmatech.digital/) - [@rieckpil](htt
 
 # Lab 4
 
-## General Spring Boot Testing Tips & Tricks and Q&A
+## Tips & Tricks beyond Code Coverage
 
-### Various Spring Boot Testing Hacks
+  
+---
+
+## Code Coverage Is a Vanity Metric
+
+![bg right:33%](assets/measure-coverage.jpg)
+
+The moment you make code coverage a **KPI**, you change what people optimise for.
+
+- Target is 80%? Teams write tests **to reach 80%**, not to catch bugs
+- The easiest lines to cover are the ones that matter least (getters, constructors, config)
+- The hardest lines to cover are the ones that matter most (error paths, race conditions, edge cases)
+- Coverage rewards **quantity of execution**, not **quality of verification**
 
 ---
 
-## `OutputCaptureExtension`
+## What happens in Practice
 
-Capture `System.out`, `System.err`, and log output **without** starting a Spring context.
+| Shortcut | Coverage effect | Confidence effect |
+|---|---|---|
+| Tests with no assertions | Coverage goes up | Zero |
+| Happy-path-only tests | Coverage goes up | Misses every edge case |
+| Excluding hard-to-test code from reports | Coverage goes up | Hides the riskiest code |
+| Duplicating test data across scenarios | Coverage stays the same | Wastes effort, tests nothing new |
 
-```java
-@ExtendWith(OutputCaptureExtension.class)
-class OutputCaptureTest {
+> If our coverage number is our goal, we will hit the number. We will **not** necessarily ship software with confidence.
 
-  private static final Logger log = LoggerFactory.getLogger(OutputCaptureTest.class);
 
-  @Test
-  void shouldCaptureStdOutWhenPrintingToSystemOut(CapturedOutput output) {
-    System.out.println("hello");
+---
 
-    assertThat(output.getOut()).contains("hello");
-  }
+**Coverage is a good negative metric, but a bad positive one:**
+- **30% coverage?** We *know* large parts of our code are untested - act on it
+- **90% coverage?** We know *nothing* - those tests might all be assertionless
 
-  @Test
-  void shouldCaptureLogOutputWhenLoggingWithSlf4j(CapturedOutput output) {
-    log.info("Book created");
+Use coverage to find what's **definitely not tested**. 
 
-    assertThat(output.getAll()).contains("Book created");
-  }
-}
-```
-  
+Never use it to claim what **is safe**.
+
 ---
 
 ## Why Code Coverage Lies
 
 - JaCoCo measures **lines executed**, not **behavior verified**
-- Remove every assertion from your tests — coverage stays at 100%
+- Remove every assertion from your tests - coverage stays at 100%
 
 ```java
 @Test
@@ -87,13 +97,22 @@ void shouldReturnFeeWhenBookIsOverdue() {
 
 ---
 
+![bg right:33%](assets/mutant.jpg)
+
+## Introducing: Mutation Testing
+
+---
+
+![center h:550 w:1100](assets/mutation-testing-explained.png)
+
+
+---
+
 ## What Is Mutation Testing?
 
-![center h:420 w:1100](assets/mutation-testing-explained.png)
-
-- [PIT](https://pitest.org/) **injects small bugs** (mutants) into your compiled code, then reruns your tests
-- **Killed** — at least one test fails, the test suite detected the bug
-- **Survived** — all tests still pass, exposing a **gap** in your assertions
+- [PIT](https://pitest.org/) **injects small bugs** (mutants) into our compiled code, then reruns our tests
+- **Killed** - at least one test fails, the test suite detected the bug
+- **Survived** - all tests still pass, exposing a **gap** in our assertions
 - **Mutation Score** = `killed mutants / total mutants x 100`
 
 ---
@@ -104,14 +123,41 @@ void shouldReturnFeeWhenBookIsOverdue() {
 
 1. Analyses **bytecode** of production classes (never touches source)
 2. Collects per-test line coverage, selects only **matching tests** per mutant
-3. Orders tests by speed — fastest first
-4. **Early exit:** stops as soon as the first test kills a mutant
-
-> PIT never modifies your `.java` files — everything happens in memory at the bytecode level.
+3. Executes relevant tests for each mutant
 
 ---
 
-## PIT Default Mutators (Gregor Engine)
+## Our Upcoming Example
+
+```java
+@Service
+public class LateReturnFeeCalculator {
+
+  private static final BigDecimal RATE_TIER_ONE = new BigDecimal("1.00");
+  private static final BigDecimal RATE_TIER_TWO = new BigDecimal("2.00");
+
+  public BigDecimal calculateFee(Book book, LocalDate borrowedDate) {
+    if (book.getStatus() != BookStatus.BORROWED) {
+      return BigDecimal.ZERO;
+    }
+
+    LocalDate today = LocalDate.now(clock);
+    long daysOverdue = ChronoUnit.DAYS.between(borrowedDate, today);
+
+    if (daysOverdue <= 0) {
+      return BigDecimal.ZERO;
+    } else if (daysOverdue <= 7) {
+      return RATE_TIER_ONE.multiply(BigDecimal.valueOf(daysOverdue));
+    } else {
+      return RATE_TIER_TWO.multiply(BigDecimal.valueOf(daysOverdue));
+    }
+  }
+}
+```
+
+---
+
+## PIT Default Mutators
 
 | Mutator | What it does | `LateReturnFeeCalculator` example |
 |---|---|---|
@@ -120,30 +166,16 @@ void shouldReturnFeeWhenBookIsOverdue() {
 | Math | `*` to `/`, `+` to `-` | `RATE.multiply(days)` → conceptually division |
 | Return Values | non-null to null, 0 to 1 | `return fee` → `return BigDecimal.ZERO` |
 | Void Method Calls | removes the call entirely | removes void method invocations |
-
-> PIT applies **one mutation at a time** — each mutant tests a single fault.
-
 ---
 
-## Maven Setup — PIT with JUnit 5
+## PIT with Spring Boot & Maven In Action
 
 ```xml
 <plugin>
   <groupId>org.pitest</groupId>
   <artifactId>pitest-maven</artifactId>
   <version>1.19.1</version>
-  <dependencies>
-    <dependency>
-      <groupId>org.pitest</groupId>
-      <artifactId>pitest-junit5-plugin</artifactId>
-      <version>1.2.1</version>
-    </dependency>
-  </dependencies>
-  <configuration>
-    <targetClasses>
-      <param>pragmatech.digital.workshops.lab4.service.*</param>
-    </targetClasses>
-  </configuration>
+  <!-- ... -->
 </plugin>
 ```
 
@@ -154,7 +186,7 @@ void shouldReturnFeeWhenBookIsOverdue() {
 
 ---
 
-## Demo: Weak Test — 100% Coverage, Mutants Survive
+## Demo: Weak Test - 100% Coverage, Mutants Survive
 
 ```java
 @Test
@@ -169,40 +201,10 @@ void shouldReturnFeeWhenBookIsOverdue() {
 }
 ```
 
-**JaCoCo:** 100% line coverage — every branch entered
-
 **PIT:** 8 of 12 mutants **survive**
 - `<= 7` mutated to `< 7` — tests still pass
 - `RATE_TIER_TWO` replaced with `RATE_TIER_ONE` — tests still pass
 - Return value replaced with `BigDecimal.ZERO` — tests still pass
-
----
-
-## Demo: Strong Tests — All Mutants Killed
-
-```java
-@Test
-void shouldReturnZeroFeeWhenBookIsNotBorrowed() {
-  assertThat(cut.calculateFee(availableBook, tenDaysAgo)).isEqualByComparingTo("0");
-}
-
-@Test
-void shouldReturnTierOneFeeAtBoundary() {
-  assertThat(cut.calculateFee(borrowedBook, sevenDaysAgo)).isEqualByComparingTo("7.00");
-}
-
-@Test
-void shouldReturnTierTwoFeeAfterBoundary() {
-  assertThat(cut.calculateFee(borrowedBook, eightDaysAgo)).isEqualByComparingTo("12.00");
-}
-
-@Test
-void shouldReturnTierThreeFeeAfterSecondBoundary() {
-  assertThat(cut.calculateFee(borrowedBook, fifteenDaysAgo)).isEqualByComparingTo("30.00");
-}
-```
-
-**Boundary pairs** (`7` vs `8`, `14` vs `15`) kill the conditionals-boundary mutants.
 
 ---
 
@@ -229,12 +231,6 @@ Open `target/pit-reports/index.html` after each run.
 
 **Target:** `@Service` classes, domain entities with logic, utility classes
 
-**Exclude from PIT:**
-- `@Controller` / `@RestController` — test via `@WebMvcTest`
-- `@Repository` — test via `@DataJpaTest` + real DB
-- `@Configuration`, DTOs, generated code (Lombok, MapStruct)
-- Integration tests (`*IT.java`) — too slow for PIT's repeated runs
-
 ---
 
 ## CI Integration & Adoption Strategy
@@ -257,94 +253,6 @@ Open `target/pit-reports/index.html` after each run.
 - `<threads>4</threads>` — parallel mutant execution
 - `<avoidCallsTo>org.slf4j,org.apache.logging</avoidCallsTo>` — skip logging mutants
 - `<mutationThreshold>80</mutationThreshold>` — fail build below threshold
-
----
-
-## Following Container Logs
-
-Pipe Testcontainers output to your SLF4J logger for debugging:
-
-```java
-@Testcontainers
-class ContainerLogsTest {
-
-  private static final Logger log = LoggerFactory.getLogger(ContainerLogsTest.class);
-
-  @Container
-  static PostgreSQLContainer postgres = new PostgreSQLContainer("postgres:16-alpine")
-    .withLogConsumer(new Slf4jLogConsumer(log)); // ← All container output → SLF4J
-
-  @Test
-  void shouldCapturePostgresStartupLogsWhenContainerStarts() {
-    assertThat(postgres.getLogs())
-      .contains("database system is ready to accept connections");
-  }
-}
-```
-
----
-
-**Add to `LocalDevTestcontainerConfig`** to always stream container logs during test runs:
-
-```java
-return new PostgreSQLContainer("postgres:16-alpine")
-  .withLogConsumer(new Slf4jLogConsumer(LoggerFactory.getLogger("postgres")));
-```
-
----
-
-## `@RecordApplicationEvents`
-
-Verify that your application code publishes the **right Spring events** - without mocking.
-
-```java
-@SpringBootTest
-@RecordApplicationEvents                  // ← Enables event recording
-@Import(LocalDevTestcontainerConfig.class)
-@ContextConfiguration(initializers = WireMockContextInitializer.class)
-class RecordApplicationEventsTest {
-
-  @Autowired ApplicationEvents events;    // ← Injected per test
-  @Autowired BookService bookService;
-
-  @Test
-  void shouldPublishBookCreatedEventWhenCreatingBook() {
-    bookService.createBook(new BookCreationRequest("978-0134757599", "Effective Java",
-        "Joshua Bloch", LocalDate.of(2018, 1, 6)));
-
-    assertThat(events.stream(BookCreatedEvent.class)).hasSize(1);
-
-    BookCreatedEvent event = events.stream(BookCreatedEvent.class).findFirst().orElseThrow();
-    assertThat(event.isbn()).isEqualTo("978-0134757599");
-    assertThat(event.bookId()).isNotNull();
-  }
-}
-```
-
----
-
-## `ApplicationContextRunner`
-
-Test **auto-configuration and conditional beans** without starting a full context.
-
-```java
-class ApplicationContextRunnerTest {
-
-  private final ApplicationContextRunner contextRunner = new ApplicationContextRunner()
-    .withUserConfiguration(ConditionalBookImportConfig.class); // ← Minimal slice
-
-  @Test
-  void shouldHaveBookImportBeanWhenPropertyIsEnabled() {
-    contextRunner
-      .withPropertyValues("bookshelf.import.enabled=true")
-      .run(context ->
-        assertThat(context).hasSingleBean(String.class)
-      );
-  }
-}
-```
-
-**Runs in milliseconds** - ideal for testing `@ConditionalOnProperty`, `@ConditionalOnClass`, `@ConditionalOnMissingBean`.
 
 ---
 
@@ -403,145 +311,6 @@ class ArchUnitTest {
     .should().callMethod(LocalDate.class, "now");
 }
 ```
-
----
-
-## Object Mother Pattern - Centralise Test Data Creation
-
-**Problem:** every test constructs its own objects → brittle, verbose, inconsistent.
-
-```java
-// ❌ Repeated in every test — breaks when the Book constructor changes
-Book book = new Book("978-0-13-468599-1", "Clean Code", "Martin", LocalDate.of(2008, 8, 1));
-book.setStatus(BookStatus.BORROWED);
-```
-
----
-
-**Solution:** a dedicated factory class with named, pre-configured instances:
-
-```java
-public class BookMother {
-
-  public static Book availableBook() {
-    return new Book("978-0-13-468599-1", "Clean Code", "Robert C. Martin", LocalDate.of(2008, 8, 1));
-  }
-
-  public static Book borrowedBook() {
-    Book book = availableBook();
-    book.setStatus(BookStatus.BORROWED);
-    return book;
-  }
-
-  public static Book effectiveJava() {
-    return new Book("978-0-13-468599-0", "Effective Java", "Joshua Bloch", LocalDate.of(2018, 1, 6));
-  }
-}
-```
-
-```java
-// ✅ Tests read like a specification
-Book book = BookMother.borrowedBook();
-```
-
-**Constructor changes?** Fix `BookMother` once - all tests stay green.
-
----
-
-## Useful Libraries: Selenide
-
-**Selenium wrapper** with a fluent API that reduces boilerplate and auto-retries assertions.
-
-```java
-// Selenium (verbose)
-WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-WebElement button = wait.until(ExpectedConditions.elementToBeClickable(By.id("submit")));
-button.click();
-
-// Selenide (concise)
-$("#submit").click();
-$$(".book-card").shouldHave(size(5));
-$(".book-title").shouldHave(text("Effective Java"));
-```
-
----
-
-**Key features:**
-- Auto-waits for elements (configurable timeout, no explicit waits)
-- Screenshots + page source on test failure — saved automatically
-- Works with Selenium Grid, BrowserStack, and remote browsers
-
-```xml
-<dependency>
-  <groupId>com.codeborne</groupId>
-  <artifactId>selenide</artifactId>
-  <version>7.x</version>
-</dependency>
-```
-
----
-
-## Useful Libraries: GreenMail / Mailpit
-
-**Test email sending** without a real SMTP server.
-
-```java
-@SpringBootTest(webEnvironment = NONE)
-class BookNotificationServiceTest {
-
-  @RegisterExtension
-  static GreenMailExtension greenMail = new GreenMailExtension(ServerSetupTest.SMTP)
-    .withConfiguration(GreenMailConfiguration.aConfig().withUser("test", "test"))
-    .withPerMethodLifecycle(false);
-
-  @Autowired BookNotificationService bookNotificationService;
-
-  @Test
-  void shouldSendEmailWhenNotifyingAboutNewBook() throws Exception {
-    bookNotificationService.notifyNewBook("Effective Java", "reader@example.com");
-
-    MimeMessage[] messages = greenMail.getReceivedMessages();
-    assertThat(messages).hasSize(1);
-    assertThat(messages[0].getSubject()).isEqualTo("New book available: Effective Java");
-  }
-}
-```
-
----
-
-## Useful Libraries: Gatling / JMH
-
-### Gatling - Load & Performance Testing
-
-```scala
-class BookApiSimulation extends Simulation {
-  val scn = scenario("Browse Books")
-    .exec(http("Get All Books").get("/api/books"))
-    .pause(1)
-    .exec(http("Get Book by ID").get("/api/books/1"))
-
-  setUp(scn.inject(atOnceUsers(100))).protocols(httpProtocol)
-}
-```
-
-```bash
-mvn gatling:test   # Generates HTML report in target/gatling/
-```
-
----
-
-### JMH - Micro-benchmarking
-
-```java
-@Benchmark
-@BenchmarkMode(Mode.AverageTime)
-public void calculateFee(Blackhole bh) {
-  bh.consume(cut.calculateFee(book, borrowedDate));
-}
-```
-
-**Use Gatling** for end-to-end API performance. **Use JMH** for hot code paths and algorithm comparisons.
-
 ---
 
 ## Useful Libraries: Pact / Spring Cloud Contract
@@ -594,22 +363,6 @@ Define your testing conventions in `.claude/CLAUDE.md` to guide AI code generati
 3. Review and commit tests
 4. Ask AI to write minimal implementation to make tests pass
 5. Run PIT to check mutation coverage
-
----
-
-## Diffblue Cover - AI-Generated Unit Tests
-
-**What it is:** A commercial tool that automatically generates JUnit unit tests for existing Java code using AI.
-
-**How it works:**
-1. Analyzes production bytecode (no source required)
-2. Generates `@Test` methods covering branches and edge cases
-3. Integrates with IntelliJ IDEA and CI/CD pipelines
-
-**Strengths:**
-- Boosts coverage for legacy code with no existing tests
-- Generates regression tests before refactoring
-- Runs on CI to detect new uncovered code
 
 ---
 
@@ -762,77 +515,27 @@ The goal is not zero failures - it is **fast, automatic recovery** when failures
 
 # Workshop Summary
 
-## Lab 1 - Unit Testing with Spring Boot
+## Lab 1 
 
-- The testing pyramid: write most tests as fast unit tests; reserve slow integration tests for critical paths only
-- JUnit 5/6 lifecycle annotations (`@BeforeEach`, `@Nested`, `@ParameterizedTest`, `@Tag`) and the extension model for cross-cutting concerns
-- Maven Surefire runs `*Test.java` (unit); Failsafe runs `*IT.java` (integration) - keeping feedback loops separate
-- `spring-boot-starter-test` bundles AssertJ, Mockito, and the Spring Test framework out of the box
+- TBD
 
 ---
 
-## Lab 2 - Sliced Testing: The Web Layer
+## Lab 2
 
-- `@WebMvcTest` loads only controllers, filters, and security config - no service or repository beans - starts in under a second
-- `MockMvc` simulates HTTP requests inside the JVM without a real server: assert status codes, JSON paths, and headers
-- `@MockitoBean` stubs the service layer so controllers can be tested in complete isolation from the database
-- Spring Security is fully active: use `@WithMockUser`, `.with(jwt())`, and `.with(csrf())` per test
+- TBD
 
 ---
 
-## Lab 3 - Sliced Testing: Persistence & HTTP Clients
+## Lab 3
 
-- `@DataJpaTest` loads only the JPA layer and wraps every test in a transaction that rolls back automatically
-- Replace H2 with a real PostgreSQL container via Testcontainers + `@ServiceConnection` to test against the production database engine
-- `@JsonTest` verifies Jackson serialisation/deserialisation in isolation; `@RestClientTest` stubs HTTP responses via `MockRestServiceServer`
-- Each slice loads only what it needs - failures pinpoint the right layer and the feedback loop stays fast
+- TBD
 
 ---
 
-## Lab 4 - Full Context Integration Testing
+## Lab 4
 
-- `@SpringBootTest` boots the entire `ApplicationContext` - every bean, security config, and Flyway migration - closest to production
-- Four challenges: outbound HTTP on startup, infrastructure dependencies, security, and data cleanup — each requiring a deliberate solution
-- WireMock via `ApplicationContextInitializer` stubs outbound HTTP before beans initialize; Testcontainers manages a real PostgreSQL container
-- `MOCK` (MockMvc, `@Transactional` rollback) vs. `RANDOM_PORT` (real TCP, real commits, manual `@AfterEach` cleanup)
-
----
-
-## Lab 5 - MockMvc, WebTestClient & Context Customisation
-
-- `MOCK`: test and server share the same thread → `@Transactional` wraps the whole call chain and rolls back automatically
-- `RANDOM_PORT`: real TCP to a separate Tomcat thread → `@Transactional` has no effect; use `@AfterEach deleteAll()` for cleanup
-- Customize the context per class with `@TestPropertySource`, `@ActiveProfiles`, `@TestConfiguration` + `@Import`, and `@Primary` beans
-- Prefer handwritten fakes with `@Primary` over `@MockitoBean` - every `@MockitoBean` variation forces a brand-new context startup
-
----
-
-
-## Lab 6 - Spring Context Caching
-
-- Spring caches `ApplicationContext` using `MergedContextConfiguration` as the key - identical configs share one context across the suite
-- Before starting, Spring X-rays the test class and merges all annotations, initializers, `@MockitoBean` definitions, and property overrides into the key object; `hashCode`/`equals` decides hit or miss
-- Cache killers: `@DirtiesContext`, per-class `@MockitoBean`, varying `@ActiveProfiles`, inline `properties` on `@SpringBootTest`
-- The `SharedIntegrationTestBase` pattern consolidates all shared annotations into one abstract base class → one context for all integration tests
-
----
-
-## Lab 7 - Test Parallelisation & CI Excellence
-
-- JUnit Jupiter parallel execution (`junit-platform.properties`) + Maven Surefire `forkCount` are complementary and multiply each other's speedup
-- Safe parallel integration tests use UUID-prefixed test data or `@Transactional` rollback to prevent cross-test interference
-- Static `@Bean @ServiceConnection` Testcontainers fields share one container instance across all tests in the same context
-- GitHub Actions best practices: `timeout-minutes`, Maven cache, `--fail-at-end` to collect all failures, redirect test output to files
-
----
-
-## Lab 4 - General Testing Hacks & Libraries
-
-- `OutputCaptureExtension`, `Slf4jLogConsumer`, `@RecordApplicationEvents`, `ApplicationContextRunner` - lightweight utilities for targeted testing without a full context
-- PIT mutation testing introduces code mutations automatically: 100% line coverage ≠ 100% confidence; strong assertions are essential
-- ArchUnit enforces layered architecture rules as executable unit tests in CI - soft conventions become hard failures
-- Object Mother pattern centralizes test data creation; GreenMail, Selenide, and Pact fill gaps that Spring Boot's built-in slices do not cover
-
+- TBD 
 ---
 
 ![bg right:33%](assets/qa-screen.jpg)
@@ -847,78 +550,54 @@ The goal is not zero failures - it is **fast, automatic recovery** when failures
 
 ---
 
-## Don't Leave Empty-Handed
+## Level Up Your Organization On Spring Boot Testing
 
-![bg h:720 w:450 right:33%](assets/tsbad-cover.png)
+![bg right:23%](assets/philip-jug-zurich-2025-audience.jpg)
 
+Testing is a team sport, make sure your whole team levels up together.
 
-- Get the complementary **Testing Spring Boot Applications Demystified** for free
+I offer the 90 minutes talk **Testing Spring Boot Applications Demystified** for free during:
 
-- 120+ Pages with practical hands-on advice to ship code with confidence
+- **Lunch & Learn** sessions
+- **Internal conferences** and developer days
+- **Team training** events
 
-- Get the eBook by joining our [newsletter](https://rieckpil.de/free-spring-boot-testing-book/) and receive further Spring Boot testing-related tips & tricks
-
-![center h:200 w:200](assets/newsletter-signup-qr.png)
-
----
-
-## Want This For Your Whole Team?
-
-### 90-Minute Hands-On Webinar — Delivered Internally at Your Company
-
-- Live, instructor-led, **for as many of your developers as you can fit**
-- Same Library Management System codebase, condensed to the highest-impact takeaways
-- Tailored to your team's stack (Spring Boot version, CI, DB, infra)
-- Q&A with a Spring Boot testing practitioner — not a generic trainer
-
-📩 **philip@pragmatech.digital** — let's pick a date.
-
-![bg right:33%](assets/end.jpg)
+Reach out via LinkedIn or email (philip@pragmatech.digital) to discuss the details and schedule a session for your team.
 
 ---
 
 ## Upcoming Open Online Workshops
 
-Join developers from across Europe in a public, hands-on cohort:
+Join developers from all around the world in a public, hands-on cohort:
 
-- 🗓️ **Effective Spring Boot Testing** — full 2-day deep dive
-- 🗓️ **Spring Boot Production Readiness** — observability, resilience, ops
-- 🗓️ **Modern Java for Spring Developers** — records, sealed types, virtual threads
+**Confidence In Every Commit: Essentials (1 Day)** — Achieve confidence in every commit. Stop fighting your test suite and start mastering it.
+  - 🗓️ 02.07.2026
+  - 🗓️ 08.09.2026
 
-Dates, agendas and tickets: **<https://pragmatech.digital/workshops>**
-
-Subscribe to the newsletter to get a heads-up before public seats open:
-**<https://rieckpil.de/newsletter>**
+Dates, agendas and tickets: **<https://rieckpil.de/workshops>**
 
 ---
 
 ## Get Your Certificate of Participation
 
-![bg right:55% w:95%](assets/lab-4-certificate.png)
-
-You made it through a full day of advanced Spring Boot testing — that deserves a souvenir.
+![w:500 h:300 center](assets/certificate.png)
 
 **To claim your personalised certificate:**
 
-📩 Send a short email to **philip@pragmatech.digital**
-with your **full name** (exactly as you'd like it printed) and the workshop date.
-
-You'll get the signed PDF back within a day.
+- Send a short email to **philip@pragmatech.digital**
+with your **full name**.
+- You'll get the signed PDF back within a day.
 
 ---
 
 <!-- paginate: false -->
 
-## Tusen takk!
+## Jofyul Testing!
 
-Workshop materials are on [GitHub](https://github.com/PragmaTech-GmbH/digdir-workshop/).
-
-The rendered slides are in the `slides/` folder.
+Enjoy the upcoming two days of Spring I/O 2026 and sunny Barcelona!
 
 ![bg right:33%](assets/end.jpg)
-
-Joyful testing!
-
+  
 Reach out any time via:
 - [LinkedIn](https://www.linkedin.com/in/rieckpil) (Philip Riecks)
 - [X](https://x.com/rieckpil) (@rieckpil)

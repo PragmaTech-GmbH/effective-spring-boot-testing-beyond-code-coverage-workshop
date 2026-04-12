@@ -13,8 +13,7 @@ import pragmatech.digital.workshops.lab4.entity.BookStatus;
 public class LateReturnFeeCalculator {
 
   private static final BigDecimal RATE_TIER_ONE = new BigDecimal("1.00");
-  private static final BigDecimal RATE_TIER_TWO = new BigDecimal("1.50");
-  private static final BigDecimal RATE_TIER_THREE = new BigDecimal("2.00");
+  private static final BigDecimal RATE_TIER_TWO = new BigDecimal("2.00");
 
   private final Clock clock;
 
@@ -32,12 +31,12 @@ public class LateReturnFeeCalculator {
 
     if (daysOverdue <= 0) {
       return BigDecimal.ZERO;
-    } else if (daysOverdue <= 7) {
+    }
+    else if (daysOverdue <= 7) {
       return RATE_TIER_ONE.multiply(BigDecimal.valueOf(daysOverdue));
-    } else if (daysOverdue <= 14) {
+    }
+    else {
       return RATE_TIER_TWO.multiply(BigDecimal.valueOf(daysOverdue));
-    } else {
-      return RATE_TIER_THREE.multiply(BigDecimal.valueOf(daysOverdue));
     }
   }
 }

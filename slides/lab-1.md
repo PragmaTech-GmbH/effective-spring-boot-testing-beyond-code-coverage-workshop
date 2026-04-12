@@ -46,7 +46,7 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 - 13:00 - 14:00 **Lunch** (60 minutes)
 - 14:00 - 15:30: **Lab 3 - Accelerating Spring Boot Build Times**
 - 15:30 - 15:50 **Coffee Break** (20 minutes)
-- 15:50 - 17:00: **Lab 4 - Pitfalls & Best Practices, Time for Q&A**
+- 15:50 - 17:00: **Lab 4 - Tips & Tricks beyond Code Coverage**
 
 ---
 
