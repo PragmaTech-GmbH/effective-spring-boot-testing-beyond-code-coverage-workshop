@@ -35,7 +35,12 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ## Recap of Lab 1
 
-- TBD
+- We explored why testing matters and how good tests give us **confidence to ship frequently**
+- We set up our Bookshelf sample application and understood its moving parts: Postgres, Keycloak, Mailpit, OpenLibrary
+- We learned that `@SpringBootTest` alone won't start when the app depends on external infrastructure
+- We introduced **Testcontainers** to provide real Docker-backed instances of Postgres, Keycloak, and Mailpit
+- We connected containers to Spring via `@ServiceConnection` and `@DynamicPropertySource`
+- We wrote our first end-to-end integration test: delete a book and verify the notification email arrived at Mailpit
 
 ---
 

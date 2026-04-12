@@ -27,9 +27,20 @@ Philip Riecks - [PragmaTech GmbH](https://pragmatech.digital/) - [@rieckpil](htt
 ## Discuss Exercises from Lab 3
 
 - Analyzing test suite for context cache reuse:
-  - How many unique `ApplicationContext` are created by the `ContextCacheKiller*IT` tests?
+  - How many unique `ApplicationContext` are created by the `ContextKiller*IT` tests?
   - Streamline the context setup with a shared class
   - Verify that all tests share the same context and build time is reduced
+
+---
+
+## Recap of Lab 3
+
+- We learned why **fast builds matter**: shorter feedback loops, more flow, quicker bug fixes, and a concrete ROI multiplier across the team
+- We discovered **Spring Test Context Caching** — how Spring computes a cache key from `MergedContextConfiguration` and reuses contexts when the key matches
+- We hunted down five **context cache killers**: `@DirtiesContext`, inline `@SpringBootTest` properties, `@TestPropertySource`, `@MockitoBean`, and `@ActiveProfiles`
+- We applied the **`AbstractIntegrationTest` pattern** — one shared base class with unified config so the entire IT suite boots a single context
+- We explored **test parallelization** at two levels: Maven Surefire `forkCount` (process-level) and JUnit Jupiter `parallel.mode.classes.default = concurrent` (thread-level)
+- We covered **Testcontainers best practices**: singleton containers via static `@Bean @ServiceConnection`, connection pool exhaustion, and reuse mode for local development
 
 ---
 
@@ -515,27 +526,44 @@ The goal is not zero failures - it is **fast, automatic recovery** when failures
 
 # Workshop Summary
 
-## Lab 1 
+## Lab 1 - Writing Reliable Integration Tests Part I
 
-- TBD
-
----
-
-## Lab 2
-
-- TBD
+- We set up real infrastructure with **Testcontainers** (Postgres, Keycloak, Mailpit) — no mocks, no in-memory substitutes
+- We connected containers to Spring via `@ServiceConnection` and `@DynamicPropertySource`
+- We wrote end-to-end tests covering the full stack: HTTP request, security, persistence, and email delivery
+- **Key takeaway:** if our production app talks to Postgres, our tests should too
 
 ---
 
-## Lab 3
+## Lab 2 - Writing Reliable Integration Tests Part II
 
-- TBD
+- We replaced flaky network calls with **WireMock** stubs for the OpenLibrary API
+- We replaced Keycloak with a lightweight **WireMock-based fake OIDC issuer** (`OAuth2Stubs`)
+- We compared **`MOCK` vs `RANDOM_PORT`**: same-thread `@Transactional` rollback vs real Tomcat with explicit cleanup
+- We used **Spring Security Test** (`jwt().authorities(...)`) to eliminate the identity provider entirely in MockMvc tests
+- **Key takeaway:** stub what we don't own, control what we do
 
 ---
 
-## Lab 4
+## Lab 3 - Accelerating Spring Boot Build Times
 
-- TBD 
+- We understood why fast builds are a **team multiplier** — every minute saved compounds across developers and days
+- We mastered **Spring Test Context Caching** and identified five common cache killers
+- We applied the **`AbstractIntegrationTest` pattern** — one context for the entire IT suite
+- We parallelized tests at two levels: Maven `forkCount` (process) and JUnit Jupiter `concurrent` (thread)
+- We adopted **Testcontainers best practices**: singleton containers, connection pool sizing, and reuse mode
+- **Key takeaway:** the fastest test is the one that doesn't boot a new context
+
+---
+
+## Lab 4 - Tips & Tricks beyond Code Coverage
+
+- We learned that code coverage is a **vanity metric** — a good negative indicator but a bad positive one
+- We introduced **PIT mutation testing** to answer the real question: "would our tests catch a bug?"
+- We wrote weak tests (100% coverage, 33% mutation score) and strong tests (boundary pairs that kill every mutant)
+- We enforced architecture rules as executable tests with **ArchUnit**
+- We explored additional libraries: GreenMail, Selenide, Gatling, JMH, and Pact/Spring Cloud Contract
+- **Key takeaway:** coverage measures execution, mutation testing measures verification - we need both
 ---
 
 ![bg right:33%](assets/qa-screen.jpg)

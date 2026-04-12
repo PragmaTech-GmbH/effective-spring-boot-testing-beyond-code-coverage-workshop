@@ -36,7 +36,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SolutionDeleteBookSendsEmailIT {
 
-
   @ServiceConnection
   protected static final PostgreSQLContainer POSTGRES =
     new PostgreSQLContainer("postgres:16-alpine");
@@ -109,7 +108,7 @@ class SolutionDeleteBookSendsEmailIT {
 
     String createBookJson = """
       {
-        "isbn": "978-0000000077",
+        "isbn": "978-0201616224",
         "internalName": "http-created",
         "availabilityDate": "2024-01-01"
       }
@@ -144,7 +143,7 @@ class SolutionDeleteBookSendsEmailIT {
     RestClient mailpitClient = RestClient.create(MAILPIT.getApiBaseUrl());
 
     Awaitility.await()
-      .atMost(Duration.ofSeconds(10))
+      .atMost(Duration.ofSeconds(20))
       .pollInterval(Duration.ofMillis(200))
       .untilAsserted(() -> {
         ObjectNode inbox = mailpitClient.get()

@@ -34,7 +34,12 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ## Recap of Lab 2
 
-- TBD
+- We tackled the problem of **external HTTP calls** in tests and why real network calls make tests flaky and slow
+- We introduced **WireMock** to stub the OpenLibrary API and learned advanced features: stateful scenarios, response templating, proxying & recording
+- We replaced Keycloak with a **WireMock-based fake OIDC issuer** (`OAuth2Stubs`) — no container, no startup cost
+- We compared **`MOCK` vs `RANDOM_PORT`** modes: MockMvc runs on the test thread (enabling `@Transactional` rollback), while `RANDOM_PORT` starts real Tomcat on a separate thread (requiring explicit cleanup)
+- We explored **Spring Security Test** (`jwt().authorities(...)`) as a zero-cost alternative to a real identity provider in MockMvc tests
+- We wrote a full integration test for `POST /api/books` with WireMock stubbing, a real signed JWT, and database assertions
 
 ---
 
