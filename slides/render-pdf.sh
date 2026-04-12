@@ -17,14 +17,14 @@ cd "$SCRIPT_DIR"
 
 echo "Rendering individual lab PDFs..."
 
-for lab in 1 2 3 4 5 6 7 8; do
+for lab in 1 2 3 4; do
     labFile="lab-${lab}.md"
     if [ ! -f "$labFile" ]; then
         echo "Warning: $labFile not found, skipping."
         continue
     fi
     echo "  Rendering $labFile..."
-    marp --pdf "$labFile" --theme pragmatech.css --allow-local-files
+    marp --pdf "$labFile" --theme pragmatech.css --engine engine.js --allow-local-files
 done
 
 echo "Done! PDFs saved alongside each lab-N.md file."
