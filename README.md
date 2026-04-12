@@ -19,9 +19,9 @@ All four labs share **one** sample application - a Library Management System (bo
 - 9:00 - 10:45: **Lab 1 - Writing Reliable Spring Boot Integration Tests Part I**
 - 10:45 - 11:05: **Coffee Break** (20 minutes)
 - 11:05 - 13:00: **Lab 2 - Writing Reliable Spring Boot Integration Tests Part II**
-- 13:00 - 14:00 **Lunch** (60 minutes)
+- 13:00 - 14:00: **Lunch** (60 minutes)
 - 14:00 - 15:30: **Lab 3 - Accelerating Spring Boot Build Times**
-- 15:30 - 15:50 **Coffee Break** (20 minutes)
+- 15:30 - 15:50: **Coffee Break** (20 minutes)
 - 15:50 - 17:00: **Lab 4 - Tips & Tricks beyond Code Coverage**
 
 ## Lab Structure
