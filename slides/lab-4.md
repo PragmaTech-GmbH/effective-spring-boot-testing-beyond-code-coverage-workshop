@@ -8,16 +8,15 @@ theme: pragmatech
 ---
 
 <!-- _class: title -->
-![bg h:500 left:33%](assets/generated/demystify.png)
+![bg left:33%](assets/workshop-banner.jpg)
 
 # Effective Spring Boot Testing Beyond Code Coverage
-
 
 ## Full-Day Workshop
 
 _Spring I/O Conference Workshop 13.04.2026_
 
-Philip Riecks - [PragmaTech GmbH](https://pragmatech.digital/) - [@rieckpil](https://x.com/rieckpil)
+Philip Riecks | [PragmaTech GmbH](https://pragmatech.digital/) | [@rieckpil](https://x.com/rieckpil)
 
 ---
 

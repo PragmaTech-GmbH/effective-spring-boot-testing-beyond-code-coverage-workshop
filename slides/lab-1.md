@@ -8,16 +8,15 @@ theme: pragmatech
 ---
 
 <!-- _class: title -->
-![bg h:500 left:33%](assets/generated/demystify.png)
+![bg left:33%](assets/workshop-banner.jpg)
 
 # Effective Spring Boot Testing Beyond Code Coverage
-
 
 ## Full-Day Workshop
 
 _Spring I/O Conference Workshop 13.04.2026_
 
-Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil](https://x.com/rieckpil)
+Philip Riecks | [PragmaTech GmbH](https://pragmatech.digital/) | [@rieckpil](https://x.com/rieckpil)
 
 --- 
 
@@ -84,9 +83,12 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 
 ---
 
-# Move beyond *code coverage* - write tests that give you confidence to ship frequently to production.
+# Move beyond *code coverage* - write tests that give us confidence to ship frequently to production.
 
 ---
+
+![bg right:33%](assets/why-test-software.jpg)
+
 
 # Why Test Software?
 
@@ -105,7 +107,10 @@ AI provides the horsepower, but your test suite provides the steering. Together,
 
 ---
 
-# My Overall Northstar for Automated Testing
+![bg right:33%](assets/northstar.jpg)
+
+
+## My Overall Northstar for Automated Testing
 
 Imagine seeing this pull request on a Friday afternoon:
 
@@ -119,7 +124,7 @@ Good tests don't just catch bugs - they give you **fast feedback** and **confide
 
 # Workshop Technical Agenda Revisited
 
-- Test slices and context management in Spring Boot
+- Test context management in Spring Boot
 - Testcontainers: setup, configuration, and best practices 
 - Context caching strategies for faster test suites
 - Testing external services: WireMock, contract testing, and resilience verification
@@ -354,24 +359,27 @@ static void mailProps(DynamicPropertyRegistry registry) {
 
 ## What About Keycloak?
 
+**Keycloak** is an open-source Identity Provider (IdP) that handles OAuth2/OIDC authentication and authorization. If your organization uses Azure AD, Okta, Auth0, or AWS Cognito - Keycloak fills the same role. 
+
+We use it here because we can run it as a Docker container with zero cloud dependencies.
+
+---
+
+## Simplified OAuth2 Flow for Our Application
+
 ![center](assets/oauth2-flow-simplifed.png)
 
 ---
 
 ## Preparing Keycloak
 
-- Sample realm with client configuration and test user
 
+**Our test realm setup:**
 
-
----
-
-
-## Bonus: Local Dev with Testcontainers
-
-`spring-boot-testonctinaerrs` and `SpringApplication.from(...).with(TestcontainersConfig.class)` let you boot the app **locally** against the same containers your tests use.
-
-Run with `./mvnw spring-boot:test-run` 
+- A pre-configured **realm** (`workshop`) exported as JSON and auto-imported on container startup
+- A **confidential client** (`bookshelf-spa`) that our Spring Boot resource server validates tokens against
+- A test **user** (`admin` / `admin`) with the `books:read` and `books:write` scopes we need for our secured endpoints
+- The realm export lives in `src/test/resources/` - Keycloak imports it on boot, giving us a fully seeded IdP in seconds
 
 ---
 

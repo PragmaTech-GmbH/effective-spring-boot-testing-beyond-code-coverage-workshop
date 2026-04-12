@@ -8,7 +8,7 @@ theme: pragmatech
 ---
 
 <!-- _class: title -->
-![bg h:500 left:33%](assets/generated/demystify.png)
+![bg left:33%](assets/workshop-banner.jpg)
 
 # Effective Spring Boot Testing Beyond Code Coverage
 
@@ -16,7 +16,7 @@ theme: pragmatech
 
 _Spring I/O Conference Workshop 13.04.2026_
 
-Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil](https://x.com/rieckpil)
+Philip Riecks | [PragmaTech GmbH](https://pragmatech.digital/) | [@rieckpil](https://x.com/rieckpil)
 
 ---
 
@@ -39,8 +39,7 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 - We set up our Bookshelf sample application and understood its moving parts: Postgres, Keycloak, Mailpit, OpenLibrary
 - We learned that `@SpringBootTest` alone won't start when the app depends on external infrastructure
 - We introduced **Testcontainers** to provide real Docker-backed instances of Postgres, Keycloak, and Mailpit
-- We connected containers to Spring via `@ServiceConnection` and `@DynamicPropertySource`
-- We wrote our first end-to-end integration test: delete a book and verify the notification email arrived at Mailpit
+- We wrote our first integration test: delete a book and verify the notification email arrived at Mailpit
 
 ---
 

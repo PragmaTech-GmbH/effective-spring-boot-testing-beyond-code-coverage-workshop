@@ -8,7 +8,7 @@ theme: pragmatech
 ---
 
 <!-- _class: title -->
-![bg h:500 left:33%](assets/generated/demystify.png)
+![bg left:33%](assets/workshop-banner.jpg)
 
 # Effective Spring Boot Testing Beyond Code Coverage
 
@@ -16,7 +16,7 @@ theme: pragmatech
 
 _Spring I/O Conference Workshop 13.04.2026_
 
-Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil](https://x.com/rieckpil)
+Philip Riecks | [PragmaTech GmbH](https://pragmatech.digital/) | [@rieckpil](https://x.com/rieckpil)
 
 ---
 
@@ -38,7 +38,6 @@ Philip Riecks — [PragmaTech GmbH](https://pragmatech.digital/) — [@rieckpil]
 - We introduced **WireMock** to stub the OpenLibrary API and learned advanced features: stateful scenarios, response templating, proxying & recording
 - We replaced Keycloak with a **WireMock-based fake OIDC issuer** (`OAuth2Stubs`) — no container, no startup cost
 - We compared **`MOCK` vs `RANDOM_PORT`** modes: MockMvc runs on the test thread (enabling `@Transactional` rollback), while `RANDOM_PORT` starts real Tomcat on a separate thread (requiring explicit cleanup)
-- We explored **Spring Security Test** (`jwt().authorities(...)`) as a zero-cost alternative to a real identity provider in MockMvc tests
 - We wrote a full integration test for `POST /api/books` with WireMock stubbing, a real signed JWT, and database assertions
 
 ---
@@ -465,7 +464,7 @@ This is why context caching and parallelization work **together** - fewer contex
 
 **Option 1 - Maximize context reuse**:
 
-→ One `SharedIntegrationTestBase` → one context → one pool
+→ One `AbstractIntegrationTest` → one context → one pool
 
 **Option 2 - Reduce pool size per context:**
 
@@ -520,4 +519,4 @@ See `labs/lab-3/README.md`.
 
 1. Analyze the test suite and identify how many contexts are created
 2. Identify the context cache killers in the test suite and understand why they break caching
-3. Reduce the number of contexts to one by applying the `SharedIntegrationTestBase` pattern and removing cache killers
+3. Reduce the number of contexts to one by applying the `AbstractIntegrationTest` pattern and removing cache killers

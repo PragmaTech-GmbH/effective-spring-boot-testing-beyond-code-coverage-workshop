@@ -2,7 +2,7 @@
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/PragmaTech-GmbH/effective-spring-boot-testing-beyond-code-coverage-workshop)
 
-A one-day, advanced workshop on writing **fast, reliable, high-signal** tests for Spring Boot applications. Assumes you already know JUnit 5, Mockito, and the basics of `@SpringBootTest`.
+A one-day, advanced workshop on writing **fast, reliable, high-signal** tests for Spring Boot applications. Assumes you already know JUnit, Mockito, and the basics of `@SpringBootTest`.
 
 **Location**: Spring I/0 2026, April 13, 09:00 - 17:00
 
@@ -58,7 +58,7 @@ You'll find the slides for each lab in the `slides/` directory. They are organiz
 
 - [Spring Boot Testing Documentation](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing)
 - [Spring Test Documentation](https://docs.spring.io/spring-framework/reference/testing.html)
-- [JUnit 5 User Guide](https://junit.org/junit5/docs/current/user-guide/)
+- [JUnit 6 User Guide](https://docs.junit.org/6.0.3/overview.html)
 - [Mockito Documentation](https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html)
 - [Testcontainers Documentation](https://www.testcontainers.org/)
 - [WireMock Documentation](http://wiremock.org/docs/)
