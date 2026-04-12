@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-//@Component
+@Component
 public class FallbackOpenLibraryApiClient extends OpenLibraryApiClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(FallbackOpenLibraryApiClient.class);

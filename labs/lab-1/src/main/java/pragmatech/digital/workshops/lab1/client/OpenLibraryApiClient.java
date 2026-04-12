@@ -17,7 +17,7 @@ import reactor.util.retry.Retry;
  * a JSON object keyed by ISBN with the bibliographic record we need to enrich books
  * during creation.
  */
-@Component
+//@Component
 public class OpenLibraryApiClient {
 
   private static final Logger LOG = LoggerFactory.getLogger(OpenLibraryApiClient.class);
