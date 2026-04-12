@@ -17,6 +17,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
+import pragmatech.digital.workshops.lab3.client.FallbackOpenLibraryApiClient;
 import pragmatech.digital.workshops.lab3.client.OpenLibraryApiClient;
 import pragmatech.digital.workshops.lab3.support.OAuth2Stubs;
 
@@ -72,8 +73,8 @@ class ContextKiller1IT {
 
     @Bean
     @Primary
-    OpenLibraryApiClient openLibraryApiClient(WebClient openLibraryWebClient) {
-      return new OpenLibraryApiClient(openLibraryWebClient);
+    OpenLibraryApiClient openLibraryApiClient() {
+      return new FallbackOpenLibraryApiClient();
     }
   }
 }

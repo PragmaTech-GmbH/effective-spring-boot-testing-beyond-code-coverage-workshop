@@ -7,13 +7,9 @@ import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTe
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 import pragmatech.digital.workshops.lab3.client.OpenLibraryApiClient;
 import pragmatech.digital.workshops.lab3.support.OAuth2Stubs;
@@ -51,10 +47,6 @@ import pragmatech.digital.workshops.lab3.support.OAuth2Stubs;
  *             fronted by {@link OAuth2Stubs}.</li>
  *       </ol>
  *       One server, one port, one set of stubs — no Keycloak container.</li>
- *   <li>A {@link TestConfiguration} that replaces
- *       {@code FallbackOpenLibraryApiClient} with the real
- *       {@link OpenLibraryApiClient} (marked {@code @Primary}) so integration
- *       tests actually hit WireMock.</li>
  *   <li>An auto-configured {@link RestTestClient} for exercising endpoints.</li>
  * </ul>
  *
@@ -67,7 +59,6 @@ import pragmatech.digital.workshops.lab3.support.OAuth2Stubs;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
-@Import(AbstractIntegrationTest.RealOpenLibraryClientConfig.class)
 public abstract class AbstractIntegrationTest {
 
   @ServiceConnection
@@ -94,19 +85,4 @@ public abstract class AbstractIntegrationTest {
 
   @Autowired
   protected RestTestClient restTestClient;
-
-  /**
-   * Swaps the default {@code FallbackOpenLibraryApiClient} bean for a real
-   * {@link OpenLibraryApiClient} pointed at the shared WireMock server, so
-   * integration tests actually exercise the HTTP client.
-   */
-  @TestConfiguration
-  public static class RealOpenLibraryClientConfig {
-
-    @Bean
-    @Primary
-    OpenLibraryApiClient openLibraryApiClient(WebClient openLibraryWebClient) {
-      return new OpenLibraryApiClient(openLibraryWebClient);
-    }
-  }
 }

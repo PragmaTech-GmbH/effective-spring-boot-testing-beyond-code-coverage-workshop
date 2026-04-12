@@ -5,24 +5,19 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.testcontainers.postgresql.PostgreSQLContainer;
-import pragmatech.digital.workshops.lab3.client.OpenLibraryApiClient;
 import pragmatech.digital.workshops.lab3.support.OAuth2Stubs;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
-@Import(ContextKiller5IT.RealOpenLibraryClientConfig.class)
+@AutoConfigureTestRestTemplate
 @ActiveProfiles("killer-five")
 class ContextKiller5IT {
 
@@ -65,15 +60,5 @@ class ContextKiller5IT {
       .uri("/api/books")
       .exchange()
       .expectStatus().isOk();
-  }
-
-  @TestConfiguration
-  static class RealOpenLibraryClientConfig {
-
-    @Bean
-    @Primary
-    OpenLibraryApiClient openLibraryApiClient(WebClient openLibraryWebClient) {
-      return new OpenLibraryApiClient(openLibraryWebClient);
-    }
   }
 }

@@ -117,9 +117,6 @@ class SolutionCreateBookWireMockIT {
   @Test
   void shouldCreateBookAndEnrichMetadataFromOpenLibrary() {
     WIREMOCK.stubFor(get(urlPathEqualTo("/api/books"))
-      .withQueryParam("bibkeys", equalTo(ISBN))
-      .withQueryParam("jscmd", equalTo("data"))
-      .withQueryParam("format", equalTo("json"))
       .willReturn(ok()
         .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .withBody("""

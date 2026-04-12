@@ -27,7 +27,6 @@ import pragmatech.digital.workshops.lab3.support.OAuth2Stubs;
   }
 )
 @AutoConfigureRestTestClient
-@Import(ContextKiller2IT.RealOpenLibraryClientConfig.class)
 class ContextKiller2IT {
 
   @ServiceConnection
@@ -69,15 +68,5 @@ class ContextKiller2IT {
       .uri("/api/books")
       .exchange()
       .expectStatus().isOk();
-  }
-
-  @TestConfiguration
-  static class RealOpenLibraryClientConfig {
-
-    @Bean
-    @Primary
-    OpenLibraryApiClient openLibraryApiClient(WebClient openLibraryWebClient) {
-      return new OpenLibraryApiClient(openLibraryWebClient);
-    }
   }
 }
