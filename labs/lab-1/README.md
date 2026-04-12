@@ -15,12 +15,12 @@ Before writing any tests, take a few minutes to explore the running application 
 
 1. Start the app with all infrastructure containers:
 
-   ```bash
-   cd labs/lab-1
-   ./mvnw spring-boot:test-run
-   ```
+```bash
+cd labs/lab-1
+./mvnw spring-boot:run
+```
 
-   This uses Spring Boot's Testcontainers integration to automatically start **Postgres**, **Keycloak**, and **Mailpit** in Docker — no manual setup needed.
+This uses Spring Boot's Docker Compoe integration to automatically start **Postgres**, **Keycloak**, and **Mailpit** in Docker — no manual setup needed.
 
 2. Open the app in your browser: <http://localhost:8080/app>
 
