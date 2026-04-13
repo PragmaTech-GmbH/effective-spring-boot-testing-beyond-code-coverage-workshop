@@ -141,4 +141,5 @@ class BookControllerTest {
         .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_books:write"))))
       .andExpect(status().isNotFound());
   }
+
 }
