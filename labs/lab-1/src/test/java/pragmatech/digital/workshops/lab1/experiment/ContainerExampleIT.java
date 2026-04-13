@@ -9,9 +9,9 @@ import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.postgresql.PostgreSQLContainer;
 
-public class TestcontainersIT {
+public class ContainerExampleIT {
 
-  private static final Logger LOG = LoggerFactory.getLogger(TestcontainersIT.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ContainerExampleIT.class);
 
   private static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer("postgres:16-alpine")
     .withEnv("FOO_BAR", "42")
