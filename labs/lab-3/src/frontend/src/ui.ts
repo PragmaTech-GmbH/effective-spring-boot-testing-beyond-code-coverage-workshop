@@ -36,7 +36,7 @@ export function renderApp(root: HTMLElement): void {
         <section class="bg-white rounded-lg border border-slate-200 shadow-sm">
           <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
             <h2 class="font-medium">Books</h2>
-            <button id="refresh-btn" class="text-sm text-indigo-600 hover:underline">Refresh</button>
+            <button id="refresh-btn" class="text-sm text-emerald-600 hover:underline">Refresh</button>
           </div>
           <div id="books-table" class="p-6 text-sm text-slate-500">Loading&hellip;</div>
         </section>
@@ -60,7 +60,7 @@ export function renderApp(root: HTMLElement): void {
               <input name="availabilityDate" required type="date" class="mt-1 border border-slate-300 rounded px-3 py-2" />
             </label>
             <div class="sm:col-span-3">
-              <button id="create-btn" type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed" disabled>
+              <button id="create-btn" type="submit" class="bg-emerald-600 text-white px-4 py-2 rounded hover:bg-emerald-700 disabled:bg-slate-300 disabled:cursor-not-allowed" disabled>
                 Create &amp; enrich from OpenLibrary
               </button>
             </div>
@@ -78,9 +78,9 @@ export function renderApp(root: HTMLElement): void {
         </ul>
         <p class="mt-3">Sample IT book ISBNs <span class="text-slate-400">(click to copy)</span>:</p>
         <ul class="mt-1 space-y-0.5">
-          <li><button type="button" data-isbn="978-0132350884" class="isbn-copy font-mono text-indigo-600 hover:underline">978-0132350884</button> &mdash; Clean Code</li>
-          <li><button type="button" data-isbn="978-0201616224" class="isbn-copy font-mono text-indigo-600 hover:underline">978-0201616224</button> &mdash; The Pragmatic Programmer</li>
-          <li><button type="button" data-isbn="978-0201485677" class="isbn-copy font-mono text-indigo-600 hover:underline">978-0201485677</button> &mdash; Refactoring</li>
+          <li><button type="button" data-isbn="978-0132350884" class="isbn-copy font-mono text-emerald-600 hover:underline">978-0132350884</button> &mdash; Clean Code</li>
+          <li><button type="button" data-isbn="978-0201616224" class="isbn-copy font-mono text-emerald-600 hover:underline">978-0201616224</button> &mdash; The Pragmatic Programmer</li>
+          <li><button type="button" data-isbn="978-0201485677" class="isbn-copy font-mono text-emerald-600 hover:underline">978-0201485677</button> &mdash; Refactoring</li>
         </ul>
       </footer>
     </div>
@@ -108,7 +108,7 @@ function renderAuthArea(): void {
     document.getElementById('logout-btn')!.addEventListener('click', () => logout());
   } else {
     area.innerHTML = `
-      <button id="login-btn" class="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700">Log in with Keycloak</button>
+      <button id="login-btn" class="text-sm bg-emerald-600 text-white px-3 py-1.5 rounded hover:bg-emerald-700">Log in with Keycloak</button>
     `;
     document.getElementById('login-btn')!.addEventListener('click', () => login());
   }
@@ -173,7 +173,7 @@ function bookRow(book: Book): string {
         <select data-field="status" class="border border-slate-200 rounded px-2 py-1" ${canWrite ? '' : 'disabled'}>${statusOptions}</select>
       </td>
       <td class="py-2 flex gap-2 justify-end">
-        <button data-action="save" class="text-indigo-600 hover:underline disabled:text-slate-300" ${canWrite ? '' : 'disabled'}>Save</button>
+        <button data-action="save" class="text-emerald-600 hover:underline disabled:text-slate-300" ${canWrite ? '' : 'disabled'}>Save</button>
         <button data-action="delete" class="text-red-600 hover:underline disabled:text-slate-300" ${canWrite ? '' : 'disabled'}>Delete</button>
       </td>
     </tr>
