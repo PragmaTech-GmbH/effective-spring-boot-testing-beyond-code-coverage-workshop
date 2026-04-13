@@ -25,3 +25,19 @@ jobs:
       run: |
         find . -name "*.txt" -path "*/surefire-reports/*" -exec echo "=== {} ===" \; -exec cat {} \;
         find . -name "*.txt" -path "*/failsafe-reports/*" -exec echo "=== {} ===" \; -exec cat {} \;
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: .\mvnw.cmd verify --batch-mode --no-transfer-progress -Dmaven.test.redirectTestOutputToFile=true
