@@ -40,5 +40,4 @@ jobs:
         cache: maven
 
     - name: Build with Maven
-      env:
       run: .\mvnw.cmd test --batch-mode --no-transfer-progress
