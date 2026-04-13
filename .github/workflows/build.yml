@@ -33,6 +33,7 @@ jobs:
     - uses: actions/checkout@v5
 
     - name: Set up Docker
+      id: setup-docker
       uses: docker/setup-docker-action@v5
 
     - name: Set up JDK 21
@@ -43,4 +44,10 @@ jobs:
         cache: maven
 
     - name: Build with Maven
+      env:
+        # docker/setup-docker-action uses a TCP socket, not the Windows named pipe.
+        # Testcontainers checks the named pipe first and fails without this override.
+        DOCKER_HOST: ${{ steps.setup-docker.outputs.docker-host }}
+        # Tell Testcontainers where containers expose their mapped ports.
+        TESTCONTAINERS_HOST_OVERRIDE: localhost
       run: .\mvnw.cmd verify --batch-mode --no-transfer-progress
