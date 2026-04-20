@@ -131,32 +131,30 @@
         font-weight: 600;
       }
 
-      /* topic pills */
-      .pills {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 1.25rem;
-        margin-bottom: 2rem;
+      /* goals list */
+      .goals {
+        text-align: left;
+        margin-top: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 0;
+        list-style: none;
+        max-width: 620px;
       }
 
-      .pill {
-        font-size: 10px;
-        letter-spacing: 0.15em;
-        text-transform: uppercase;
-        font-weight: 600;
-        padding: 0.4rem 1rem;
-        border-radius: 9999px;
-        border: 1px solid #dbeafe;
-        color: #1e3a8a;
-        background: #eff6ff;
+      .goals li {
+        font-size: 11.5px;
+        color: #334155;
+        line-height: 1.5;
+        padding: 0.2rem 0 0.2rem 1.4rem;
+        position: relative;
       }
 
-      .pill.highlight {
-        border-color: #fde68a;
-        color: #92400e;
-        background: #fffbeb;
+      .goals li::before {
+        content: "\2713";
+        position: absolute;
+        left: 0;
+        color: #3b82f6;
+        font-weight: 700;
       }
 
       /* bottom row */
@@ -241,28 +239,30 @@
         <hr class="rule" />
 
         <div class="presented-to">presented to</div>
-        <div class="name">Duke</div>
+        <div class="name">Java Duke</div>
         <div class="name-line"></div>
 
         <p class="workshop-text">
           For successfully completing the one-day, hands-on workshop<br />
-          <strong>Effective Spring Boot Testing &mdash; Beyond Code Coverage</strong>
+          <strong>Effective Spring Boot Testing Beyond Code Coverage</strong><br /><br />
+          Demonstrating the ability to move beyond code coverage and write tests<br />
+          that give confidence to ship frequently to production.
         </p>
 
-        <div class="pills">
-          <span class="pill">Testcontainers</span>
-          <span class="pill">WireMock + OAuth2</span>
-          <span class="pill">Context Caching</span>
-          <span class="pill">Parallel Execution</span>
-          <span class="pill highlight">Mutation Testing</span>
-        </div>
+        <ul class="goals">
+          <li>Confidently use Testcontainers for database and infrastructure testing</li>
+          <li>Understand and optimize Spring context caching behavior</li>
+          <li>Apply proven strategies for testing external service integrations</li>
+          <li>Use mutation testing to identify weak spots in your test suite</li>
+          <li>Reduce test execution time without sacrificing quality</li>
+        </ul>
 
         <!-- Signature / Date row -->
         <div class="bottom-row">
           <div class="col left">
             <div class="value">13.04.2026</div>
             <div class="underline"></div>
-            <div class="small-label">Date</div>
+            <div class="small-label">Spring I/O &mdash; 13.04.2026</div>
           </div>
 
           <div class="col right">
@@ -273,7 +273,7 @@
         </div>
       </div>
 
-      <div class="cert-no">PT-2026-XXXX</div>
+      <div class="cert-no">PT-2026-6722</div>
     </article>
   </body>
 </html>
